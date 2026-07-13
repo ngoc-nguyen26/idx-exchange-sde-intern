@@ -1,6 +1,5 @@
 const express = require("express");
 const pool = require("../config/db");
-
 const router = express.Router();
 
 const DEFAULT_LIMIT = 20;
@@ -10,7 +9,6 @@ function parsePositiveInt(value, name, { min = 0, max = Infinity } = {}) {
   if (value === undefined || value === "") {
     return undefined;
   }
-
   const num = Number(value);
   if (!Number.isInteger(num) || num < min || num > max) {
     const err = new Error(
@@ -26,7 +24,6 @@ function parseNonEmptyString(value, name) {
   if (value === undefined) {
     return undefined;
   }
-
   const trimmed = String(value).trim();
   if (!trimmed) {
     const err = new Error(`Invalid ${name}: cannot be empty`);
@@ -51,33 +48,45 @@ function buildFilters(query) {
     conditions.push("LOWER(TRIM(L_City)) = LOWER(TRIM(?))");
     values.push(city);
   }
-
   if (zipcode) {
     conditions.push("L_Zip = ?");
     values.push(zipcode);
   }
-
   if (minPrice !== undefined) {
     conditions.push("L_SystemPrice >= ?");
     values.push(minPrice);
   }
-
   if (maxPrice !== undefined) {
     conditions.push("L_SystemPrice <= ?");
     values.push(maxPrice);
   }
-
   if (beds !== undefined) {
     conditions.push("L_Keyword2 >= ?");
     values.push(beds);
   }
-
   if (baths !== undefined) {
     conditions.push("LM_Dec_3 >= ?");
     values.push(baths);
   }
 
   return { conditions, values };
+}
+
+// ---------------------------------------------------------------------------
+// Week 4 addition: listing ID validation
+// ---------------------------------------------------------------------------
+const MAX_ID_LENGTH = 32; // adjust if L_ListingID column allows longer values
+const ID_PATTERN = /^[A-Za-z0-9\-]+$/;
+
+function validateListingId(rawId) {
+  if (!rawId || rawId.length > MAX_ID_LENGTH || !ID_PATTERN.test(rawId)) {
+    const err = new Error(
+      `Invalid listing ID: must be 1-${MAX_ID_LENGTH} alphanumeric characters`
+    );
+    err.status = 400;
+    throw err;
+  }
+  return rawId;
 }
 
 // GET /api/properties
@@ -88,7 +97,6 @@ router.get("/", async (req, res) => {
       max: MAX_LIMIT,
     });
     const offset = parsePositiveInt(req.query.offset ?? "0", "offset", { min: 0 });
-
     const { conditions, values } = buildFilters(req.query);
 
     const whereClause =
@@ -99,7 +107,6 @@ router.get("/", async (req, res) => {
       FROM rets_property
       ${whereClause}
     `;
-
     const dataSql = `
       SELECT *
       FROM rets_property
@@ -120,8 +127,74 @@ router.get("/", async (req, res) => {
     if (err.status === 400) {
       return res.status(400).json({ error: err.message });
     }
-
     console.error("GET /api/properties failed:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Week 4 addition: GET /api/properties/:id/openhouses
+// ---------------------------------------------------------------------------
+router.get("/:id/openhouses", async (req, res) => {
+  try {
+    const id = validateListingId(req.params.id);
+
+    const [propertyRows] = await pool.query(
+      "SELECT L_ListingID FROM rets_property WHERE L_ListingID = ? LIMIT 1",
+      [id]
+    );
+
+    if (propertyRows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: `Property with ID "${id}" not found` });
+    }
+
+const [openHouses] = await pool.query(
+      `SELECT *
+       FROM rets_openhouse
+       WHERE L_ListingID = ?
+       ORDER BY OpenHouseDate ASC, OH_StartTime ASC`,
+      [id]
+    );
+
+    return res.json(openHouses);
+  } catch (err) {
+    if (err.status === 400) {
+      return res.status(400).json({ error: err.message });
+    }
+    console.error(
+      `GET /api/properties/${req.params.id}/openhouses failed:`,
+      err
+    );
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Week 4 addition: GET /api/properties/:id
+// ---------------------------------------------------------------------------
+router.get("/:id", async (req, res) => {
+  try {
+    const id = validateListingId(req.params.id);
+
+    const [rows] = await pool.query(
+      "SELECT * FROM rets_property WHERE L_ListingID = ? LIMIT 1",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: `Property with ID "${id}" not found` });
+    }
+
+    return res.json(rows[0]);
+  } catch (err) {
+    if (err.status === 400) {
+      return res.status(400).json({ error: err.message });
+    }
+    console.error(`GET /api/properties/${req.params.id} failed:`, err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
