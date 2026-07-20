@@ -1,0 +1,70 @@
+.listings-page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.listings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.listings-header h1 {
+  margin: 0 0 10px;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.listings-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.property-count {
+  margin: 0 0 20px;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.status-message {
+  padding: 28px;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #475569;
+  text-align: center;
+}
+
+.error-box {
+  padding: 22px;
+  border: 1px solid #fca5a5;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.error-box button {
+  margin-top: 14px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.error-box button:hover {
+  opacity: 0.85;
+}
