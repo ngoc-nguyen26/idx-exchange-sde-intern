@@ -1,0 +1,127 @@
+.property-filters {
+  --header-navy: #1e2530;
+  --body-bg: #eef0f1;
+  --field-border: #d8dce1;
+  --text: #1f2937;
+  --accent: #2563eb;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+
+  overflow: hidden;
+  padding: 0 14px 14px;
+
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  background: var(--body-bg);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  margin-bottom: 18px;
+}
+
+
+/* Header */
+.property-filters::before {
+  content: "Find Your Home";
+
+  flex-basis: 100%;
+  margin: 0 -14px 4px;
+
+  padding: 10px 14px;
+
+  background: var(--header-navy);
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+
+/* Filter fields */
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  flex: 1 1 120px;
+}
+
+
+.filter-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+
+/* Inputs */
+.filter-field input,
+.filter-field select {
+  height: 40px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--field-border);
+  border-radius: 5px;
+
+  font-size: 13px;
+
+  background: #ffffff;
+  color: var(--text);
+}
+
+
+.filter-field input:focus,
+.filter-field select:focus {
+  outline: none;
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+
+/* Buttons */
+.btn-search,
+.btn-clear {
+  height: 38px;
+
+  padding: 0 16px;
+
+  border-radius: 0;
+
+  font-weight: 700;
+  font-size: 13px;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  border: none;
+
+  white-space: nowrap;
+}
+
+
+.btn-search {
+  background: var(--header-navy);
+  color: #ffffff;
+}
+
+
+.btn-clear {
+  background: #e2e8f0;
+  color: var(--text);
+}
+
+
+.btn-search:hover,
+.btn-clear:hover {
+  opacity: 0.85;
+}

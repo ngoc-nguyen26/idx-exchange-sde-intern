@@ -1,3 +1,7 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 .property-card {
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -40,22 +44,35 @@
 .property-price {
   margin: 0 0 8px;
   font-size: 22px;
+  font-weight: 700;
+  color: #111827;
 }
 
 .property-address {
   margin: 0 0 4px;
+  font-size: 16px;
   font-weight: 600;
+  color: #1f2937;
 }
 
 .property-location {
   margin: 0 0 12px;
   color: #6b7280;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .property-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
   color: #374151;
   font-size: 14px;
+  font-weight: 400;
+}
+
+.property-stats span:not(:first-child)::before {
+  content: "|";
+  margin: 0 12px;
+  color: #d1d5db;
 }
