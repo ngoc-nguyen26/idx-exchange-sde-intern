@@ -26,7 +26,7 @@
 
 /* Header */
 .property-filters::before {
-  content: "Find Your Home";
+  content: "Find Your Property";
 
   flex-basis: 100%;
   margin: 0 -14px 4px;

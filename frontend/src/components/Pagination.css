@@ -1,0 +1,97 @@
+.pagination {
+  --header-navy: #1e2530;
+  --field-border: #d8dce1;
+  --text: #1f2937;
+  --accent: #2563eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  margin: 2rem 0;
+
+  flex-wrap: wrap;
+}
+
+
+.pagination-list {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* Previous / Next + Page buttons */
+.pagination-btn,
+.pagination-page {
+  border: 1px solid var(--field-border);
+
+  background: #ffffff;
+  color: var(--text);
+
+  border-radius: 6px;
+
+  padding: 0.4rem 0.75rem;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* Previous / Next buttons */
+.pagination-btn {
+  background: var(--header-navy);
+  border-color: var(--header-navy);
+  color: #ffffff;
+
+  font-weight: 700;
+}
+
+
+.pagination-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+
+/* Disabled Previous / Next */
+.pagination-btn:disabled {
+  background: #ffffff;
+  border-color: transparent;
+  color: #98a2b3;
+
+  cursor: not-allowed;
+}
+
+
+/* Page hover */
+.pagination-page:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+/* Active page */
+.pagination-page.active {
+  background: var(--accent);
+
+  color: #ffffff;
+
+  border-color: var(--accent);
+
+  font-weight: 700;
+}
+
+
+/* Ellipsis */
+.pagination-ellipsis {
+  padding: 0 0.25rem;
+
+  color: #667085;
+}
