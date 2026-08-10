@@ -32,9 +32,10 @@ async function handleResponse(response) {
   return response.json();
 }
 
-async function safeFetch(url) {
+async function fetchWithOptionalSignal(url, options = {}) {
   try {
-    return await fetch(url);
+    const response = await fetch(url, options);
+    return await handleResponse(response);
   } catch (err) {
     if (err instanceof TypeError) {
       throw new Error("Unable to reach the server. Is the backend running on port 5000?");
@@ -43,13 +44,15 @@ async function safeFetch(url) {
   }
 }
 
-export async function fetchProperties(params = {}) {
+export async function fetchProperties(params = {}, options = {}) {
   const queryString = buildQueryString(params);
-  const response = await safeFetch(`${BASE_URL}${queryString}`);
-  return handleResponse(response);
+  return fetchWithOptionalSignal(`${BASE_URL}${queryString}`, options);
 }
 
-export async function fetchPropertyDetail(id) {
-  const response = await safeFetch(`${BASE_URL}/${encodeURIComponent(id)}`);
-  return handleResponse(response);
+export async function fetchPropertyDetail(id, options = {}) {
+  return fetchWithOptionalSignal(`${BASE_URL}/${encodeURIComponent(id)}`, options);
+}
+
+export async function fetchPropertyOpenHouses(id, options = {}) {
+  return fetchWithOptionalSignal(`${BASE_URL}/${encodeURIComponent(id)}/openhouses`, options);
 }

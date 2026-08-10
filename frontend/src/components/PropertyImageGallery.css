@@ -1,0 +1,19 @@
+.gallery-main-image { width: 100%; max-height: 480px; object-fit: cover; cursor: zoom-in; border-radius: 8px; }
+.gallery-thumb-strip { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; margin-top: 8px; padding-bottom: 4px; }
+.gallery-thumb-strip .thumb { width: 80px; height: 60px; object-fit: cover; cursor: pointer; opacity: 0.6; border-radius: 4px; flex-shrink: 0; }
+.gallery-thumb-strip .thumb.active { opacity: 1; outline: 2px solid #2563eb; }
+
+.lightbox-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.lightbox-content { position: relative; max-width: 90vw; max-height: 90vh; outline: none; }
+.lightbox-content img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+.lightbox-close { position: absolute; top: -36px; right: 0; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+.lightbox-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.2); color: #fff; border: none;
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px;
+}
+.lightbox-arrow.left { left: -50px; }
+.lightbox-arrow.right { right: -50px; }

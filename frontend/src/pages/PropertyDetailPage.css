@@ -1,0 +1,235 @@
+.property-detail {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.back-link:hover {
+  color: #1d4ed8;
+}
+
+/* Gallery card */
+.detail-gallery-card {
+  margin-bottom: 24px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.08),
+    0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Shared card style */
+.detail-card,
+.detail-summary-card {
+  margin-bottom: 20px;
+  padding: 24px 28px;
+  background: #fff;
+  border: 1px solid #e7e9ee;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Price */
+.detail-price {
+  margin: 0 0 8px;
+  color: #1d4ed8;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+/* Address */
+.detail-address {
+  margin: 0 0 20px;
+  color: #334155;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+/* Property stats */
+.detail-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f1f5fb;
+  border-radius: 999px;
+  color: #1e293b;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.stat-pill svg {
+  flex-shrink: 0;
+  color: #2563eb;
+}
+
+/* Section headings */
+.detail-card h2 {
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef0f4;
+  color: #0f172a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Description */
+.detail-description-text {
+  margin: 0;
+  color: #515356;
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+/* Open Houses */
+.open-houses-section {
+  background: #ffffff;
+}
+
+.open-house-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Individual open house box */
+.open-house-entry {
+  background: #ffffff;
+  border: 1px solid #5e7bcd;
+  border-radius: 10px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Date + Expired badge */
+.open-house-date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.open-house-date {
+  color: #5e7bcd;
+}
+
+/* Small expired badge */
+.expired-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Time */
+.open-house-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5e7bcd;
+  margin-bottom: 14px;
+}
+
+/* Remarks */
+.open-house-remarks {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.remarks-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 5px;
+}
+
+.open-house-remarks p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+/* No open houses */
+.no-open-houses {
+  margin: 0;
+  padding: 16px;
+  background: #fefeff;
+  border: none;
+  border-radius: 10px;
+  color: #5e7bcd;
+}
+
+/* Loading and error states */
+.status-message,
+.error-box {
+  max-width: 600px;
+  margin: 60px auto;
+  color: #475569;
+  text-align: center;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .property-detail {
+    padding: 16px 14px 48px;
+  }
+
+  .detail-price {
+    font-size: 1.7rem;
+  }
+
+  .detail-card,
+  .detail-summary-card {
+    padding: 18px;
+  }
+
+  .detail-stats {
+    gap: 8px;
+  }
+
+  .stat-pill {
+    padding: 7px 12px;
+    font-size: 0.88rem;
+  }
+
+  .open-house-entry {
+    padding: 16px;
+  }
+}
+

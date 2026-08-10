@@ -1,46 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import PropertyImageCarousel from "./PropertyImageCarousel";
 import "./PropertyCard.css";
-
-function getFirstPhotoUrl(rawPhotos) {
-  if (!rawPhotos) {
-    return null;
-  }
-
-  let photos = rawPhotos;
-
-  if (typeof rawPhotos === "string") {
-    try {
-      photos = JSON.parse(rawPhotos);
-    } catch {
-      return null;
-    }
-  }
-
-  if (!Array.isArray(photos) || photos.length === 0) {
-    return null;
-  }
-
-  for (const photo of photos) {
-    if (typeof photo === "string" && photo.trim().startsWith("http")) {
-      return photo.trim();
-    }
-
-    if (photo && typeof photo === "object") {
-      const possibleUrl =
-        photo.MediaURL ||
-        photo.MediaUrl ||
-        photo.mediaUrl ||
-        photo.URL ||
-        photo.Url ||
-        photo.url;
-
-      if (typeof possibleUrl === "string" && possibleUrl.startsWith("http")) {
-        return possibleUrl;
-      }
-    }
-  }
-
-  return null;
-}
 
 function formatPrice(price) {
   if (price === null || price === undefined) {
@@ -55,24 +15,23 @@ function formatPrice(price) {
 }
 
 export default function PropertyCard({ property }) {
-  const photoUrl = getFirstPhotoUrl(property.L_Photos);
+  const navigate = useNavigate();
 
   return (
-    <article className="property-card">
-      <div className="property-image-wrapper">
-        {photoUrl ? (
-          <img
-            className="property-image"
-            src={photoUrl}
-            alt={property.L_Address || "Property"}
-          />
-        ) : (
-          <div className="property-image-placeholder">No photo available</div>
-        )}
-      </div>
+    <article
+      className="property-card"
+      onClick={() => navigate(`/property/${property.L_ListingID}`)}
+      style={{ cursor: "pointer" }}
+    >
+      <PropertyImageCarousel
+        photos={property.L_Photos}
+        alt={property.L_Address || "Property"}
+      />
 
       <div className="property-card-body">
-        <h2 className="property-price">{formatPrice(property.L_SystemPrice)}</h2>
+        <h2 className="property-price">
+          {formatPrice(property.L_SystemPrice)}
+        </h2>
 
         <p className="property-address">
           {property.L_Address || "Address unavailable"}
@@ -91,3 +50,4 @@ export default function PropertyCard({ property }) {
     </article>
   );
 }
+
