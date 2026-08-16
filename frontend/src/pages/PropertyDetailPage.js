@@ -81,6 +81,88 @@ function getRemarks(allDataRaw) {
   }
 }
 
+// Builds the label/value rows for the Property Details card.
+function buildPropertyDetailRows(property) {
+  const garageLabel =
+    property.AttachedGarageYN === true || property.AttachedGarageYN === "1"
+      ? "Yes (Attached)"
+      : property.GarageYN === true || property.GarageYN === "1"
+      ? "Yes"
+      : property.GarageYN === false || property.GarageYN === "0"
+      ? "No"
+      : null;
+
+  const hoaValue =
+    property.AssociationFee !== null &&
+    property.AssociationFee !== undefined
+      ? `$${Number(property.AssociationFee).toLocaleString()}${
+          property.AssociationFeeFrequency
+            ? ` / ${property.AssociationFeeFrequency.toLowerCase()}`
+            : ""
+        }`
+      : null;
+
+  const rows = [
+    {
+      label: "Property Type",
+      value: property.L_Type_,
+    },
+    {
+      label: "Year Built",
+      value: property.YearBuilt,
+    },
+    {
+      label: "Style",
+      value: property.ArchitecturalStyle,
+    },
+    {
+      label: "Stories",
+      value: property.StoriesTotal,
+    },
+    {
+      label: "Lot Size",
+      value:
+        property.LotSizeAcres !== null &&
+        property.LotSizeAcres !== undefined
+          ? `${Number(property.LotSizeAcres).toLocaleString()} Acres`
+          : null,
+    },
+    {
+      label: "Garage",
+      value: garageLabel,
+    },
+    {
+      label: "Heating / Cooling",
+      value:
+        [property.Heating, property.Cooling].filter(Boolean).join(" / ") ||
+        null,
+    },
+    {
+      label: "HOA Fee",
+      value: hoaValue,
+    },
+    {
+      label: "Days on Market",
+      value: property.DaysOnMarket,
+    },
+    {
+      label: "Neighborhood",
+      value: property.SubdivisionName || property.CountyOrParish,
+    },
+    {
+      label: "Listing ID",
+      value: property.L_DisplayId,
+    },
+  ];
+
+  return rows.filter(
+    (row) =>
+      row.value !== null &&
+      row.value !== undefined &&
+      row.value !== ""
+  );
+}
+
 // Small inline icons — no extra dependency required.
 const BedIcon = () => (
   <svg
@@ -211,20 +293,32 @@ export default function PropertyDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <p className="status-message">Loading property...</p>;
+    return (
+      <p className="status-message">
+        Loading property...
+      </p>
+    );
   }
 
   if (error || !property) {
     return (
       <div className="error-box">
         <p>{error || "Property not found."}</p>
-        <Link to="/">← Back to listings</Link>
+
+        <Link to="/">
+          ← Back to listings
+        </Link>
       </div>
     );
   }
 
   const hasLocation =
-    property.LMD_MP_Latitude && property.LMD_MP_Longitude;
+    property.LMD_MP_Latitude !== null &&
+    property.LMD_MP_Latitude !== undefined &&
+    property.LMD_MP_Longitude !== null &&
+    property.LMD_MP_Longitude !== undefined;
+
+  const detailRows = buildPropertyDetailRows(property);
 
   return (
     <main className="property-detail">
@@ -232,6 +326,7 @@ export default function PropertyDetailPage() {
         ← Back to listings
       </Link>
 
+      {/* Photo Gallery */}
       <div className="detail-gallery-card">
         <PropertyImageGallery
           photos={property.L_Photos}
@@ -239,6 +334,7 @@ export default function PropertyDetailPage() {
         />
       </div>
 
+      {/* Property Summary */}
       <section className="detail-summary-card">
         <h1 className="detail-price">
           {formatPrice(property.L_SystemPrice)}
@@ -246,7 +342,11 @@ export default function PropertyDetailPage() {
 
         <p className="detail-address">
           {property.L_Address},{" "}
-          {[property.L_City, property.L_State, property.L_Zip]
+          {[
+            property.L_City,
+            property.L_State,
+            property.L_Zip,
+          ]
             .filter(Boolean)
             .join(", ")}
         </p>
@@ -274,18 +374,45 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {property.L_Remarks && (
-        <section className="detail-card">
-          <h2>Description</h2>
+      {/* Description + Property Details */}
+      <div className="detail-two-column">
+        {property.L_Remarks && (
+          <section className="detail-card description-card">
+            <h2>Description</h2>
 
-          <p className="detail-description-text">
-            {property.L_Remarks}
-          </p>
-        </section>
-      )}
+            <p className="detail-description-text">
+              {property.L_Remarks}
+            </p>
+          </section>
+        )}
 
+        {detailRows.length > 0 && (
+          <section className="detail-card property-details-card">
+            <h2>Property Details</h2>
+
+            <div className="detail-rows">
+              {detailRows.map((row) => (
+                <div
+                  className="detail-row"
+                  key={row.label}
+                >
+                  <span className="detail-row-label">
+                    {row.label}
+                  </span>
+
+                  <span className="detail-row-value">
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      {/* Location */}
       {hasLocation && (
-        <section className="detail-card">
+        <section className="detail-card location-card">
           <h2>Location</h2>
 
           <PropertyMap
@@ -295,6 +422,7 @@ export default function PropertyDetailPage() {
         </section>
       )}
 
+      {/* Open Houses */}
       <section className="detail-card open-houses-section">
         <h2>Open Houses</h2>
 

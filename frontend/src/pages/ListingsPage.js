@@ -93,8 +93,8 @@ export default function ListingsPage() {
     <main className="listings-page">
       <header className="listings-header">
         <div>
-          <h1>IDX Exchange Properties</h1>
-          <p>Browse real property listings from the local MySQL database.</p>
+          <h1>IDX Exchange</h1>
+          <p>Property listings</p>
         </div>
       </header>
 
