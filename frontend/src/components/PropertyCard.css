@@ -4,9 +4,9 @@ body {
 
 .property-card {
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-card-border, #e5e7eb);
   border-radius: 14px;
-  background: white;
+  background: var(--app-card-bg, white);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
@@ -53,7 +53,7 @@ body {
   margin: 0 0 4px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--app-text, #1f2937);
 }
 
 .property-location {

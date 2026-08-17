@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
 import PropertyFilters from "../components/PropertyFilters";
@@ -6,6 +7,9 @@ import Pagination from "../components/Pagination";
 import "./ListingsPage.css";
 
 export default function ListingsPage() {
+  const [searchParams] = useSearchParams();
+  const showFilters = searchParams.get("view") === "search";
+
   const [data, setData] = useState({
     total: 0,
     limit: 20,
@@ -24,6 +28,7 @@ export default function ListingsPage() {
   const [itemsPerPage] = useState(20);
 
   const latestRequestId = useRef(0);
+  const isFirstRender = useRef(true);
 
   async function loadProperties(filters = {}, page = 1) {
     const requestId = ++latestRequestId.current;
@@ -57,9 +62,19 @@ export default function ListingsPage() {
   }
 
   useEffect(() => {
-    loadProperties({}, 1);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      loadProperties({}, 1);
+      return;
+    }
+
+    if (!showFilters) {
+      setActiveFilters({});
+      setCurrentPage(1);
+      loadProperties({}, 1);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showFilters]);
 
   // Requirement 35: changing filters must reset to page 1.
   function handleSearch(filters) {
@@ -91,14 +106,9 @@ export default function ListingsPage() {
 
   return (
     <main className="listings-page">
-      <header className="listings-header">
-        <div>
-          <h1>IDX Exchange</h1>
-          <p>Property listings</p>
-        </div>
-      </header>
-
-      <PropertyFilters onSearch={handleSearch} onClear={handleClear} />
+      {showFilters && (
+        <PropertyFilters onSearch={handleSearch} onClear={handleClear} />
+      )}
 
       {loading && <p className="status-message">Loading properties...</p>}
 

@@ -1,32 +1,11 @@
 .listings-page {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 40px 24px;
-}
-
-.listings-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
-}
-
-.listings-header h1 {
-  margin: 0 0 10px;
-  font-size: 36px;
-  font-weight: 700;
-}
-
-.listings-header p {
-  margin: 0;
-  color: #64748b;
-  font-size: 15px;
 }
 
 .property-count {
   margin: 0 0 20px;
-  color: #1f2937;
+  color: var(--app-text);
   font-size: 16px;
   font-weight: 700;
 }
@@ -40,17 +19,18 @@
 .status-message {
   padding: 28px;
   border-radius: 14px;
-  background: #f8fafc;
-  color: #475569;
+  background: var(--app-status-bg);
+  color: var(--app-text-muted);
   text-align: center;
+  border: 1px solid var(--app-border);
 }
 
 .error-box {
   padding: 22px;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--app-error-border);
   border-radius: 14px;
-  background: #fff1f2;
-  color: #b91c1c;
+  background: var(--app-error-bg);
+  color: var(--app-error-text);
 }
 
 .error-box button {

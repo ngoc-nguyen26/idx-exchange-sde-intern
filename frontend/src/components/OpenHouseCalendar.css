@@ -1,0 +1,433 @@
+.oh-calendar-wrapper {
+  height: 700px;
+  background: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Toolbar */
+.rbc-toolbar {
+  padding: 12px 4px;
+  margin-bottom: 0;
+}
+
+.rbc-toolbar button {
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  padding: 6px 16px;
+  color: #3c4043;
+  background: #fff;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.rbc-toolbar button:hover {
+  background: #f1f3f4;
+}
+
+.rbc-toolbar button.rbc-active {
+  background: #e8f0fe;
+  border-color: #d2e3fc;
+  color: #1a73e8;
+  box-shadow: none;
+}
+
+.rbc-toolbar-label {
+  font-size: 22px;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+/* Grid lines */
+.rbc-month-view,
+.rbc-time-view {
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+}
+
+/* Make sure every internal calendar surface stays transparent instead of
+   showing the library's default white panels — avoids isolated white
+   blocks now that the outer wrapper background has been removed.
+   More specific rules below (off-range shading, today highlight, popup)
+   are declared later so they still take precedence. */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-time-header,
+.rbc-time-header-content,
+.rbc-time-content,
+.rbc-time-gutter,
+.rbc-day-bg,
+.rbc-row-bg,
+.rbc-agenda-view,
+.rbc-agenda-view table.rbc-agenda-table,
+.rbc-agenda-view table.rbc-agenda-table tbody,
+.rbc-month-row,
+.rbc-date-cell {
+  background: transparent;
+}
+
+.rbc-header {
+  padding: 8px 0;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  color: #70757a;
+  text-transform: uppercase;
+  border-bottom: 1px solid #dadce0;
+  background: transparent;
+}
+
+.rbc-off-range-bg {
+  background: transparent;
+}
+
+/* Adjacent-month days are distinguished by dimmed text, not a different
+   cell background, so every day cell reads as one consistent surface. */
+.rbc-off-range {
+  color: #bdc1c6;
+}
+
+/* Focused/current date — subtle Google Calendar–style emphasis.
+   .rbc-today is applied by the library to the relevant day background
+   and header cells, so this single rule covers month, week, and day
+   views without touching layout/spacing. */
+.rbc-today {
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Today's date number in Month view gets the classic Google Calendar
+   solid blue circular badge (library applies rbc-now to that cell). */
+.rbc-date-cell.rbc-now .rbc-button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 2px;
+  margin: 2px 4px 0 0;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Event pills — dot + text like Google Calendar, not solid blocks */
+.rbc-event {
+  background: transparent;
+  border: none;
+  color: #3c4043;
+  padding: 1px 4px;
+  font-size: 12px;
+  box-shadow: none;
+}
+
+.rbc-event:focus {
+  outline: none;
+}
+
+.rbc-event-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: font-weight 0.15s ease, text-shadow 0.15s ease, color 0.15s ease;
+}
+
+/* Clear, professional hover affordance for the clickable address */
+.rbc-event:hover .rbc-event-content {
+  font-weight: 600;
+  text-decoration: underline;
+  text-shadow: 0 0 0.2px currentColor;
+}
+
+.rbc-event-content::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1a73e8; /* fallback dot color if status class isn't set */
+  flex-shrink: 0;
+}
+
+/* Status dot colors driven by actual open-house date/time (set via eventPropGetter in JS) */
+.rbc-event.oh-status-red .rbc-event-content::before {
+  background: #ea4335;
+}
+
+.rbc-event.oh-status-green .rbc-event-content::before {
+  background: #34a853;
+}
+
+.rbc-event.rbc-selected {
+  background: #f1f3f4;
+}
+
+/* Busy time-grid days (Week/Day): keep each event block at a legible
+   minimum size instead of collapsing into thin overlapping slivers.
+   Works together with dayLayoutAlgorithm="no-overlap" set in the JS,
+   which stacks concurrent events instead of squeezing their width. */
+.rbc-day-slot .rbc-event {
+  min-height: 20px;
+  border-radius: 3px;
+}
+
+/* Month view "+N more" popup for very busy days: make it a clean,
+   scrollable list instead of a cramped block of overlapping addresses. */
+.rbc-overlay {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.rbc-overlay .rbc-event {
+  margin-bottom: 4px;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.rbc-overlay .rbc-event:last-child {
+  margin-bottom: 0;
+}
+
+/* Week/Day time grid */
+.rbc-time-header-content,
+.rbc-time-content {
+  border-color: #dadce0;
+}
+
+.rbc-timeslot-group {
+  border-color: #eee;
+}
+
+.rbc-current-time-indicator {
+  background-color: #ea4335;
+  height: 2px;
+}
+
+/* ---------- Day aggregate / drill-down panel ---------- */
+
+.oh-day-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 33, 36, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.oh-day-panel {
+  width: 100%;
+  max-width: 360px;
+  max-height: 85vh;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.oh-day-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.oh-day-panel-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3c4043;
+}
+
+.oh-day-panel-count {
+  font-size: 13px;
+  color: #70757a;
+  margin-top: 2px;
+}
+
+.oh-day-panel-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: #70757a;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.oh-day-panel-close:hover {
+  background: #f1f3f4;
+}
+
+.oh-panel-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.oh-panel-search:focus {
+  border-color: #1a73e8;
+}
+
+.oh-panel-chip-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.oh-panel-chip {
+  border: 1px solid #dadce0;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #fff;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.oh-panel-chip:hover {
+  background: #f1f3f4;
+}
+
+.oh-panel-chip.active {
+  background: #e8f0fe;
+  border-color: #d2e3fc;
+  color: #1a73e8;
+}
+
+.oh-panel-breadcrumb {
+  font-size: 12px;
+  color: #70757a;
+  margin: 4px 0 10px;
+}
+
+.oh-panel-breadcrumb-btn {
+  border: none;
+  background: transparent;
+  color: #1a73e8;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.oh-panel-breadcrumb-btn:hover {
+  text-decoration: underline;
+}
+
+.oh-panel-breadcrumb-sep {
+  margin: 0 4px;
+}
+
+.oh-panel-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #70757a;
+  margin: 8px 0 4px;
+}
+
+.oh-panel-groups {
+  display: flex;
+  flex-direction: column;
+}
+
+.oh-panel-group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid #f1f3f4;
+  padding: 8px 4px;
+  font-size: 13px;
+  color: #3c4043;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.oh-panel-group-row:hover {
+  background: #f8f9fa;
+}
+
+.oh-panel-group-count {
+  color: #70757a;
+  font-size: 12px;
+}
+
+.oh-panel-empty {
+  font-size: 13px;
+  color: #70757a;
+  padding: 12px 4px;
+}
+
+/* Virtualized address list */
+.oh-panel-list {
+  overflow-y: auto;
+  position: relative;
+  border-top: 1px solid #f1f3f4;
+}
+
+.oh-panel-list-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1px solid #f1f3f4;
+  background: transparent;
+  padding: 0 4px;
+  font-size: 13px;
+  color: #3c4043;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, font-weight 0.15s ease;
+}
+
+.oh-panel-list-row:hover {
+  background: #f8f9fa;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.oh-panel-list-time {
+  flex-shrink: 0;
+  color: #70757a;
+  font-variant-numeric: tabular-nums;
+  width: 68px;
+}
+
+.oh-panel-list-address {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

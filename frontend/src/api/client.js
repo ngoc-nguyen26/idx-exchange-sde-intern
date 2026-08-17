@@ -56,3 +56,20 @@ export async function fetchPropertyDetail(id, options = {}) {
 export async function fetchPropertyOpenHouses(id, options = {}) {
   return fetchWithOptionalSignal(`${BASE_URL}/${encodeURIComponent(id)}/openhouses`, options);
 }
+
+export async function fetchOpenHouses(
+  { startDate, endDate, city, zipcode, minPrice, maxPrice, beds, baths } = {},
+  options = {}
+) {
+  const queryString = buildQueryString({
+    startDate,
+    endDate,
+    city,
+    zipcode,
+    minPrice,
+    maxPrice,
+    beds,
+    baths,
+  });
+  return fetchWithOptionalSignal(`/api/openhouses${queryString}`, options);
+}

@@ -64,8 +64,6 @@ function isOpenHouseExpired(dateValue, endTimeValue) {
   return date < new Date();
 }
 
-// all_data is stored as a JSON string.
-// Parse it before reading OpenHouseRemarks.
 function getRemarks(allDataRaw) {
   if (!allDataRaw) return null;
 
@@ -81,7 +79,6 @@ function getRemarks(allDataRaw) {
   }
 }
 
-// Builds the label/value rows for the Property Details card.
 function buildPropertyDetailRows(property) {
   const garageLabel =
     property.AttachedGarageYN === true || property.AttachedGarageYN === "1"
@@ -163,7 +160,6 @@ function buildPropertyDetailRows(property) {
   );
 }
 
-// Small inline icons — no extra dependency required.
 const BedIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -259,6 +255,7 @@ export default function PropertyDetailPage() {
   const [openHouses, setOpenHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -326,7 +323,6 @@ export default function PropertyDetailPage() {
         ← Back to listings
       </Link>
 
-      {/* Photo Gallery */}
       <div className="detail-gallery-card">
         <PropertyImageGallery
           photos={property.L_Photos}
@@ -334,7 +330,6 @@ export default function PropertyDetailPage() {
         />
       </div>
 
-      {/* Property Summary */}
       <section className="detail-summary-card">
         <h1 className="detail-price">
           {formatPrice(property.L_SystemPrice)}
@@ -374,15 +369,28 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {/* Description + Property Details */}
       <div className="detail-two-column">
         {property.L_Remarks && (
           <section className="detail-card description-card">
             <h2>Description</h2>
 
-            <p className="detail-description-text">
+            <p
+              className={`detail-description-text${
+                descriptionExpanded ? "" : " is-clamped"
+              }`}
+            >
               {property.L_Remarks}
             </p>
+
+            <button
+              type="button"
+              className="description-toggle"
+              onClick={() =>
+                setDescriptionExpanded((prev) => !prev)
+              }
+            >
+              {descriptionExpanded ? "Less" : "More"}
+            </button>
           </section>
         )}
 
@@ -410,7 +418,6 @@ export default function PropertyDetailPage() {
         )}
       </div>
 
-      {/* Location */}
       {hasLocation && (
         <section className="detail-card location-card">
           <h2>Location</h2>
@@ -422,7 +429,6 @@ export default function PropertyDetailPage() {
         </section>
       )}
 
-      {/* Open Houses */}
       <section className="detail-card open-houses-section">
         <h2>Open Houses</h2>
 
