@@ -6,6 +6,7 @@ const cors = require("cors");
 const requestLogger = require("./middleware/requestLogger"); 
 const healthRoute = require("./routes/health");
 const propertiesRoute = require("./routes/properties");
+const openHousesRoute = require("./routes/openhouses");
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.use(requestLogger);
 
 app.use("/api/health", healthRoute);
 app.use("/api/properties", propertiesRoute);
+app.use("/api/openhouses", openHousesRoute);
 
 module.exports = app;

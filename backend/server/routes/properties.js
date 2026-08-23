@@ -45,7 +45,7 @@ function buildFilters(query) {
   const baths = parsePositiveInt(query.baths, "baths", { min: 0 });
 
   if (city) {
-    conditions.push("LOWER(TRIM(L_City)) = LOWER(TRIM(?))");
+    conditions.push("city_normalized = LOWER(TRIM(?))");
     values.push(city);
   }
   if (zipcode) {
