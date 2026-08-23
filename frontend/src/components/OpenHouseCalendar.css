@@ -16,14 +16,14 @@
   border: 1px solid #dadce0;
   border-radius: 20px;
   padding: 6px 16px;
-  color: #3c4043;
-  background: #fff;
+  color: var(--app-text, #3c4043);
+  background: var(--app-card-bg, #fff);
   font-size: 14px;
   transition: background 0.15s ease;
 }
 
 .rbc-toolbar button:hover {
-  background: #f1f3f4;
+  background: var(--app-hover-bg, #f1f3f4);
 }
 
 .rbc-toolbar button.rbc-active {
@@ -36,21 +36,16 @@
 .rbc-toolbar-label {
   font-size: 22px;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--app-text, #3c4043);
 }
 
-/* Grid lines */
+/* Calendar grid */
 .rbc-month-view,
 .rbc-time-view {
   border: 1px solid #dadce0;
   border-radius: 8px;
 }
 
-/* Make sure every internal calendar surface stays transparent instead of
-   showing the library's default white panels — avoids isolated white
-   blocks now that the outer wrapper background has been removed.
-   More specific rules below (off-range shading, today highlight, popup)
-   are declared later so they still take precedence. */
 .rbc-month-view,
 .rbc-time-view,
 .rbc-time-header,
@@ -72,7 +67,7 @@
   font-weight: 500;
   font-size: 11px;
   letter-spacing: 0.3px;
-  color: #70757a;
+  color: var(--app-text-secondary, #70757a);
   text-transform: uppercase;
   border-bottom: 1px solid #dadce0;
   background: transparent;
@@ -82,16 +77,11 @@
   background: transparent;
 }
 
-/* Adjacent-month days are distinguished by dimmed text, not a different
-   cell background, so every day cell reads as one consistent surface. */
 .rbc-off-range {
-  color: #bdc1c6;
+  color: var(--app-text-muted, #bdc1c6);
 }
 
-/* Focused/current date — subtle Google Calendar–style emphasis.
-   .rbc-today is applied by the library to the relevant day background
-   and header cells, so this single rule covers month, week, and day
-   views without touching layout/spacing. */
+/* Current date */
 .rbc-today {
   background: #e8f0fe;
   color: #1a73e8;
@@ -99,8 +89,6 @@
   font-size: 13px;
 }
 
-/* Today's date number in Month view gets the classic Google Calendar
-   solid blue circular badge (library applies rbc-now to that cell). */
 .rbc-date-cell.rbc-now .rbc-button-link {
   display: inline-flex;
   align-items: center;
@@ -116,11 +104,11 @@
   font-size: 13px;
 }
 
-/* Event pills — dot + text like Google Calendar, not solid blocks */
+/* Month view events */
 .rbc-event {
   background: transparent;
   border: none;
-  color: #3c4043;
+  color: var(--app-text, #3c4043);
   padding: 1px 4px;
   font-size: 12px;
   box-shadow: none;
@@ -138,10 +126,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: font-weight 0.15s ease, text-shadow 0.15s ease, color 0.15s ease;
+  transition:
+    font-weight 0.15s ease,
+    text-shadow 0.15s ease,
+    color 0.15s ease;
 }
 
-/* Clear, professional hover affordance for the clickable address */
 .rbc-event:hover .rbc-event-content {
   font-weight: 600;
   text-decoration: underline;
@@ -154,11 +144,10 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #1a73e8; /* fallback dot color if status class isn't set */
+  background: #1a73e8;
   flex-shrink: 0;
 }
 
-/* Status dot colors driven by actual open-house date/time (set via eventPropGetter in JS) */
 .rbc-event.oh-status-red .rbc-event-content::before {
   background: #ea4335;
 }
@@ -168,266 +157,157 @@
 }
 
 .rbc-event.rbc-selected {
-  background: #f1f3f4;
+  background: var(--app-hover-bg, #f1f3f4);
 }
 
-/* Busy time-grid days (Week/Day): keep each event block at a legible
-   minimum size instead of collapsing into thin overlapping slivers.
-   Works together with dayLayoutAlgorithm="no-overlap" set in the JS,
-   which stacks concurrent events instead of squeezing their width. */
+/* Week and day views */
 .rbc-day-slot .rbc-event {
   min-height: 20px;
   border-radius: 3px;
 }
 
-/* Month view "+N more" popup for very busy days: make it a clean,
-   scrollable list instead of a cramped block of overlapping addresses. */
-.rbc-overlay {
-  max-height: 380px;
-  overflow-y: auto;
-  padding: 8px;
-  background: #fff;
-  border-radius: 8px;
+.rbc-time-view .rbc-day-slot .rbc-event-content::before {
+  display: none;
 }
 
-.rbc-overlay .rbc-event {
-  margin-bottom: 4px;
-  padding: 3px 6px;
-  border-radius: 4px;
+.rbc-time-view .rbc-day-slot .rbc-event:hover {
+  z-index: 50;
+  transform: translateY(-1px);
+  box-shadow:
+    0 3px 7px rgba(0, 0, 0, 0.11),
+    0 5px 12px rgba(0, 0, 0, 0.06);
 }
 
-.rbc-overlay .rbc-event:last-child {
-  margin-bottom: 0;
+.rbc-time-view .rbc-day-slot .rbc-event-content {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  line-height: 1.25;
 }
 
-/* Week/Day time grid */
-.rbc-time-header-content,
-.rbc-time-content {
-  border-color: #dadce0;
-}
-
-.rbc-timeslot-group {
-  border-color: #eee;
-}
-
-.rbc-current-time-indicator {
-  background-color: #ea4335;
-  height: 2px;
-}
-
-/* ---------- Day aggregate / drill-down panel ---------- */
-
-.oh-day-panel-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(32, 33, 36, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.oh-day-panel {
-  width: 100%;
-  max-width: 360px;
-  max-height: 85vh;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-  padding: 16px;
-  overflow-y: auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-}
-
-.oh-day-panel-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.oh-day-panel-date {
-  font-size: 16px;
+.rbc-time-view .rbc-day-slot .rbc-event-label {
+  font-size: 10px;
   font-weight: 600;
-  color: #3c4043;
+  margin-bottom: 1px;
 }
 
-.oh-day-panel-count {
-  font-size: 13px;
-  color: #70757a;
-  margin-top: 2px;
+.rbc-time-view .rbc-day-slot .rbc-event.oh-status-green {
+  background: #eaf7ef;
+  border-color: #c9e8d3;
+  color: #245c38;
 }
 
-.oh-day-panel-close {
-  border: none;
-  background: transparent;
-  font-size: 20px;
-  line-height: 1;
-  color: #70757a;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 50%;
-  transition: background 0.15s ease;
+.rbc-time-view .rbc-day-slot .rbc-event.oh-status-red {
+  background: #fbecec;
+  border-color: #ea4335;
+  color: #b42318;
 }
 
-.oh-day-panel-close:hover {
-  background: #f1f3f4;
-}
-
-.oh-panel-search {
+.rbc-time-view .rbc-day-slot .rbc-event-content {
   width: 100%;
+}
+
+.oh-calendar-event-card {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  padding: 8px 12px;
-  border: 1px solid #dadce0;
-  border-radius: 20px;
-  font-size: 13px;
-  margin-bottom: 10px;
-  outline: none;
-  transition: border-color 0.15s ease;
+  overflow: hidden;
 }
 
-.oh-panel-search:focus {
-  border-color: #1a73e8;
-}
-
-.oh-panel-chip-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-
-.oh-panel-chip {
-  border: 1px solid #dadce0;
-  border-radius: 14px;
-  padding: 4px 10px;
-  font-size: 12px;
-  background: #fff;
-  color: #3c4043;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.oh-panel-chip:hover {
-  background: #f1f3f4;
-}
-
-.oh-panel-chip.active {
-  background: #e8f0fe;
-  border-color: #d2e3fc;
-  color: #1a73e8;
-}
-
-.oh-panel-breadcrumb {
-  font-size: 12px;
-  color: #70757a;
-  margin: 4px 0 10px;
-}
-
-.oh-panel-breadcrumb-btn {
-  border: none;
-  background: transparent;
-  color: #1a73e8;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
-}
-
-.oh-panel-breadcrumb-btn:hover {
-  text-decoration: underline;
-}
-
-.oh-panel-breadcrumb-sep {
-  margin: 0 4px;
-}
-
-.oh-panel-group-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: #70757a;
-  margin: 8px 0 4px;
-}
-
-.oh-panel-groups {
-  display: flex;
-  flex-direction: column;
-}
-
-.oh-panel-group-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: none;
-  background: transparent;
-  border-bottom: 1px solid #f1f3f4;
-  padding: 8px 4px;
-  font-size: 13px;
-  color: #3c4043;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-
-.oh-panel-group-row:hover {
-  background: #f8f9fa;
-}
-
-.oh-panel-group-count {
-  color: #70757a;
-  font-size: 12px;
-}
-
-.oh-panel-empty {
-  font-size: 13px;
-  color: #70757a;
-  padding: 12px 4px;
-}
-
-/* Virtualized address list */
-.oh-panel-list {
-  overflow-y: auto;
-  position: relative;
-  border-top: 1px solid #f1f3f4;
-}
-
-.oh-panel-list-row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.oh-calendar-event-title {
+  display: block;
   width: 100%;
-  box-sizing: border-box;
-  border: none;
-  border-bottom: 1px solid #f1f3f4;
-  background: transparent;
-  padding: 0 4px;
-  font-size: 13px;
-  color: #3c4043;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease, font-weight 0.15s ease;
-}
-
-.oh-panel-list-row:hover {
-  background: #f8f9fa;
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.oh-panel-list-time {
-  flex-shrink: 0;
-  color: #70757a;
-  font-variant-numeric: tabular-nums;
-  width: 68px;
-}
-
-.oh-panel-list-address {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.oh-calendar-event-summary {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 3px 6px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rbc-time-view .rbc-day-slot .oh-event-summary {
+  background: #eaf7ef;
+  border-color: #c9e8d3;
+  color: #245c38;
+}
+
+.rbc-time-view .rbc-day-slot .oh-event-summary:hover {
+  background: #dff2e6;
+}
+
+.rbc-time-view .rbc-day-bg {
+  border-left: 1px solid rgba(128, 128, 128, 0.14);
+}
+
+.rbc-time-view .rbc-time-content {
+  border-top: 1px solid rgba(128, 128, 128, 0.12);
+}
+
+.rbc-time-view .rbc-day-slot {
+  overflow: hidden;
+}
+
+/* Dark mode event colors */
+@media (prefers-color-scheme: dark) {
+  .rbc-time-view .rbc-day-slot .rbc-event.oh-status-green {
+    background: #193c28;
+    border-color: #2c5c3d;
+    color: #c8efd4;
+  }
+
+  .rbc-time-view .rbc-day-slot .rbc-event.oh-status-red {
+    background: #4a2020;
+    border-color: #ea4335;
+    color: #f1cccc;
+  }
+
+  .rbc-time-view .rbc-day-slot .rbc-event.oh-shade-1 {
+    filter: brightness(1.08);
+  }
+
+  .rbc-time-view .rbc-day-slot .rbc-event.oh-shade-2 {
+    filter: brightness(1.15);
+  }
+
+  .rbc-time-view .rbc-day-slot .oh-event-summary {
+    background: #193c28;
+    border-color: #2c5c3d;
+    color: #c8efd4;
+  }
+
+  .rbc-time-view .rbc-day-bg {
+    border-left-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .rbc-time-view .rbc-time-content {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Status and error */
+.error-box {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #fbecec;
+  font-size: 13px;
+}
+
+.status-message {
+  margin: 8px 0;
+  font-size: 13px;
+  color: #6b7280;
 }

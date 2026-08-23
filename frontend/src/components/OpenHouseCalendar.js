@@ -40,30 +40,31 @@ export default function OpenHouseCalendar() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
-  // Which day's aggregate drill-down panel is open, if any.
   const [panelDate, setPanelDate] = useState(null);
+
   const navigate = useNavigate();
 
   const loadRange = useCallback(async (start, end) => {
     setLoading(true);
+
     try {
       const data = await fetchOpenHouses({
         startDate: toDateKey(start),
         endDate: toDateKey(end),
       });
+
       setEvents(
         data.map((oh) => ({
           title: oh.L_Address || "Open House",
           start: toEventDate(oh.OpenHouseDate, oh.OH_StartTime),
           end: toEventDate(oh.OpenHouseDate, oh.OH_EndTime),
           listingId: oh.L_ListingID,
-          // Optional — used by the day panel's location grouping when the
-          // API provides them; falls back to parsing the address string.
           city: oh.L_City || null,
           neighborhood: oh.L_Neighborhood || null,
-          rawProperty: oh
+          rawProperty: oh,
         }))
       );
+
       setError("");
     } catch (err) {
       setError(err.message || "Failed to load open houses");
@@ -72,8 +73,7 @@ export default function OpenHouseCalendar() {
     }
   }, []);
 
-  // Recompute the fetch range whenever the current view or the
-  // focused date changes (this covers Month/Week/Day/Agenda + Next/Back/Today).
+  /* Load events for the active calendar range. */
   useEffect(() => {
     let gridStart;
     let gridEnd;
@@ -85,7 +85,6 @@ export default function OpenHouseCalendar() {
       gridStart = startOfWeek(date, { locale: enUS });
       gridEnd = endOfWeek(date, { locale: enUS });
     } else {
-      // Day or Agenda — just load the single focused day
       gridStart = date;
       gridEnd = date;
     }
@@ -93,48 +92,106 @@ export default function OpenHouseCalendar() {
     loadRange(gridStart, gridEnd);
   }, [view, date, loadRange]);
 
-  // Fix: when switching FROM Month view TO Week/Day view, anchor the
-  // calendar on the first day of the month that was being viewed,
-  // instead of letting react-big-calendar fall back to today's date.
+  /* Keep the first day of the month when switching to Week or Day. */
   const handleViewChange = (newView) => {
-    if (view === Views.MONTH && newView === Views.WEEK) {
-      setDate((prevDate) => startOfMonth(prevDate));
-    } else if (view === Views.MONTH && newView === Views.DAY) {
+    if (
+      view === Views.MONTH &&
+      (newView === Views.WEEK || newView === Views.DAY)
+    ) {
       setDate((prevDate) => startOfMonth(prevDate));
     }
+
     setView(newView);
   };
 
-  // Business logic for expired/upcoming: red once the open house's end
-  // time has passed, green if it's today-and-not-passed-yet or in the
-  // future. Uses the existing event.end date (built from the real
-  // open-house date/time fields) — no separate date system. Shared by
-  // the status dot and the day panel's Upcoming/Expired filter.
-  const isPassed = useCallback((event) => event.end < new Date(), []);
-
-  const eventPropGetter = useCallback(
-    (event) => ({
-      className: isPassed(event) ? "oh-status-red" : "oh-status-green",
-    }),
-    [isPassed]
+  const isPassed = useCallback(
+    (event) => event.end < new Date(),
+    []
   );
 
-  // Events for whichever day the drill-down panel currently has open.
+  /* Assign up to three visual shades to overlapping Week/Day events. */
+  const shadeIndexByEvent = useMemo(() => {
+    const shadeMap = new Map();
+
+    if (view !== Views.WEEK && view !== Views.DAY) {
+      return shadeMap;
+    }
+
+    const n = events.length;
+    const visited = new Array(n).fill(false);
+
+    const overlaps = (a, b) =>
+      a.start < b.end && b.start < a.end;
+
+    for (let i = 0; i < n; i++) {
+      if (visited[i]) continue;
+
+      const stack = [i];
+      const group = [];
+      visited[i] = true;
+
+      while (stack.length) {
+        const idx = stack.pop();
+        group.push(idx);
+
+        for (let j = 0; j < n; j++) {
+          if (!visited[j] && overlaps(events[idx], events[j])) {
+            visited[j] = true;
+            stack.push(j);
+          }
+        }
+      }
+
+      group.sort(
+        (a, b) =>
+          events[a].start - events[b].start || a - b
+      );
+
+      group.forEach((idx, order) => {
+        shadeMap.set(events[idx], Math.min(order, 2));
+      });
+    }
+
+    return shadeMap;
+  }, [events, view]);
+
+  const eventPropGetter = useCallback(
+    (event) => {
+      const statusClass = isPassed(event)
+        ? "oh-status-red"
+        : "oh-status-green";
+
+      const shadeIndex = shadeIndexByEvent.get(event) || 0;
+      const shadeClass =
+        shadeIndex > 0 ? `oh-shade-${shadeIndex}` : "";
+
+      return {
+        className: [statusClass, shadeClass]
+          .filter(Boolean)
+          .join(" "),
+      };
+    },
+    [isPassed, shadeIndexByEvent]
+  );
+
+  /* Events for the selected Month-view day. */
   const panelEvents = useMemo(
-    () => (panelDate ? events.filter((e) => isSameDay(e.start, panelDate)) : []),
+    () =>
+      panelDate
+        ? events.filter((event) =>
+            isSameDay(event.start, panelDate)
+          )
+        : [],
     [events, panelDate]
   );
 
-  // Clicking "+N more" on a busy month-view day opens the aggregate panel
-  // instead of react-big-calendar's default cramped popup.
+  /* Clicking "+N more" opens the existing day panel. */
   const handleShowMore = useCallback((_events, showMoreDate) => {
     setPanelDate(showMoreDate);
   }, []);
 
-  // Clicking a date number in Month view opens the panel too (per the
-  // "calendar answers when, the panel answers where/which" design).
-  // Any other drill-down (e.g. a Week/Day header) keeps the library's
-  // normal behavior of navigating to Day view.
+  /* Month date clicks open the same day panel.
+     Week/Day navigation keeps normal calendar behavior. */
   const handleDrillDown = useCallback(
     (drillDate, drillView) => {
       if (view === Views.MONTH) {
@@ -147,38 +204,47 @@ export default function OpenHouseCalendar() {
     [view]
   );
 
-return (
-  <div className="oh-calendar-wrapper">
-    {error && <p className="error-box">{error}</p>}
-    {loading && <p className="status-message">Loading open houses…</p>}
-    <Calendar
-      localizer={localizer}
-      events={events}
-      startAccessor="start"
-      endAccessor="end"
-      view={view}
-      onView={handleViewChange}
-      date={date}
-      onNavigate={setDate}
-      eventPropGetter={eventPropGetter}
-      dayLayoutAlgorithm="no-overlap"
-      dayMaxEvents={2}
-      onShowMore={handleShowMore}
-      onDrillDown={handleDrillDown}
-      onSelectEvent={(event) => navigate(`/property/${event.listingId}`)}
-    />
-    {panelDate && (
-      <OpenHouseDayPanel
-        date={panelDate}
-        events={panelEvents}
-        isPassed={isPassed}
-        onClose={() => setPanelDate(null)}
-        onSelectProperty={(event) => {
-          setPanelDate(null);
-          navigate(`/property/${event.listingId}`);
-        }}
+  return (
+    <div className="oh-calendar-wrapper">
+      {error && <p className="error-box">{error}</p>}
+
+      {loading && (
+        <p className="status-message">
+          Loading open houses…
+        </p>
+      )}
+
+      <Calendar
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        view={view}
+        onView={handleViewChange}
+        date={date}
+        onNavigate={setDate}
+        eventPropGetter={eventPropGetter}
+        dayLayoutAlgorithm="overlap"
+        dayMaxEvents={2}
+        onShowMore={handleShowMore}
+        onDrillDown={handleDrillDown}
+        onSelectEvent={(event) =>
+          navigate(`/property/${event.listingId}`)
+        }
       />
-    )}
-  </div>
-);
+
+      {panelDate && (
+        <OpenHouseDayPanel
+          date={panelDate}
+          events={panelEvents}
+          isPassed={isPassed}
+          onClose={() => setPanelDate(null)}
+          onSelectProperty={(event) => {
+            setPanelDate(null);
+            navigate(`/property/${event.listingId}`);
+          }}
+        />
+      )}
+    </div>
+  );
 }
