@@ -33,7 +33,7 @@ body {
   height: 100%;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: #879396;
   font-size: 14px;
 }
 
@@ -45,7 +45,7 @@ body {
   margin: 0 0 8px;
   font-size: 22px;
   font-weight: 800;
-  color: #1d4ed8;
+  color: #2e65ff;
   letter-spacing: -0.01em;
 }
 
@@ -58,7 +58,7 @@ body {
 
 .property-location {
   margin: 0 0 12px;
-  color: #6b7280;
+  color: #868fa1;
   font-size: 14px;
   font-weight: 400;
 }
@@ -67,9 +67,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 400;
+  color: #789092;
+  font-size: 14.5px;
+  font-weight: 500;
 }
 
 .property-stats span:not(:first-child)::before {
