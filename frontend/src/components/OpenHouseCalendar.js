@@ -54,15 +54,28 @@ export default function OpenHouseCalendar() {
       });
 
       setEvents(
-        data.map((oh) => ({
-          title: oh.L_Address || "Open House",
-          start: toEventDate(oh.OpenHouseDate, oh.OH_StartTime),
-          end: toEventDate(oh.OpenHouseDate, oh.OH_EndTime),
-          listingId: oh.L_ListingID,
-          city: oh.L_City || null,
-          neighborhood: oh.L_Neighborhood || null,
-          rawProperty: oh,
-        }))
+        data.map((oh) => {
+          let parsedData = {};
+          try {
+            parsedData = typeof oh.all_data === 'string' ? JSON.parse(oh.all_data) : (oh.all_data || {});
+          } catch (e) {
+            console.error("Failed to parse all_data for listing", oh.L_ListingID);
+          }
+
+          const baseAddress = oh.L_Address || parsedData.address || "Open House";
+          const city = oh.L_City || parsedData.city || null;
+          
+          return {
+            title: city ? `${baseAddress} (${city})` : baseAddress,
+            start: toEventDate(oh.OpenHouseDate, oh.OH_StartTime),
+            end: toEventDate(oh.OpenHouseDate, oh.OH_EndTime),
+            listingId: oh.L_ListingID,
+            city: city,
+            neighborhood: oh.L_Neighborhood || parsedData.neighborhood || null,
+            rawProperty: oh,
+            allData: parsedData
+          };
+        })
       );
 
       setError("");
@@ -73,7 +86,6 @@ export default function OpenHouseCalendar() {
     }
   }, []);
 
-  /* Load events for the active calendar range. */
   useEffect(() => {
     let gridStart;
     let gridEnd;
@@ -84,7 +96,10 @@ export default function OpenHouseCalendar() {
     } else if (view === Views.WEEK) {
       gridStart = startOfWeek(date, { locale: enUS });
       gridEnd = endOfWeek(date, { locale: enUS });
-    } else {
+    } else if (view === Views.AGENDA) {
+      gridStart = date;
+      gridEnd = new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000);
+    } else { // DAY view
       gridStart = date;
       gridEnd = date;
     }
@@ -92,15 +107,10 @@ export default function OpenHouseCalendar() {
     loadRange(gridStart, gridEnd);
   }, [view, date, loadRange]);
 
-  /* Keep the first day of the month when switching to Week or Day. */
   const handleViewChange = (newView) => {
-    if (
-      view === Views.MONTH &&
-      (newView === Views.WEEK || newView === Views.DAY)
-    ) {
+    if (view === Views.MONTH && (newView === Views.WEEK || newView === Views.DAY)) {
       setDate((prevDate) => startOfMonth(prevDate));
     }
-
     setView(newView);
   };
 
@@ -109,89 +119,47 @@ export default function OpenHouseCalendar() {
     []
   );
 
-  /* Assign up to three visual shades to overlapping Week/Day events. */
-  const shadeIndexByEvent = useMemo(() => {
-    const shadeMap = new Map();
-
-    if (view !== Views.WEEK && view !== Views.DAY) {
-      return shadeMap;
-    }
-
-    const n = events.length;
-    const visited = new Array(n).fill(false);
-
-    const overlaps = (a, b) =>
-      a.start < b.end && b.start < a.end;
-
-    for (let i = 0; i < n; i++) {
-      if (visited[i]) continue;
-
-      const stack = [i];
-      const group = [];
-      visited[i] = true;
-
-      while (stack.length) {
-        const idx = stack.pop();
-        group.push(idx);
-
-        for (let j = 0; j < n; j++) {
-          if (!visited[j] && overlaps(events[idx], events[j])) {
-            visited[j] = true;
-            stack.push(j);
-          }
-        }
-      }
-
-      group.sort(
-        (a, b) =>
-          events[a].start - events[b].start || a - b
-      );
-
-      group.forEach((idx, order) => {
-        shadeMap.set(events[idx], Math.min(order, 2));
-      });
-    }
-
-    return shadeMap;
-  }, [events, view]);
-
   const eventPropGetter = useCallback(
     (event) => {
-      const statusClass = isPassed(event)
-        ? "oh-status-red"
-        : "oh-status-green";
-
-      const shadeIndex = shadeIndexByEvent.get(event) || 0;
-      const shadeClass =
-        shadeIndex > 0 ? `oh-shade-${shadeIndex}` : "";
-
-      return {
-        className: [statusClass, shadeClass]
-          .filter(Boolean)
-          .join(" "),
-      };
+      const isPast = isPassed(event);
+      
+      if (view === Views.MONTH) {
+        return { className: isPast ? "oh-status-red" : "oh-status-green" };
+      } else if (view === Views.AGENDA) {
+        // Agenda view styling is handled mostly via CSS, return empty or specific class
+        return { className: isPast ? "oh-agenda-past" : "" };
+      } else {
+        // Time grid (Week/Day) polished red theme
+        return { className: isPast ? "oh-time-red-expired" : "oh-time-green-upcoming" };
+      }
     },
-    [isPassed, shadeIndexByEvent]
+    [isPassed, view]
   );
 
-  /* Events for the selected Month-view day. */
+  // Highlight whichever date is currently selected (drawer open for it), so
+  // the drawer's contents are visually anchored to a cell on the calendar.
+  const dayPropGetter = useCallback(
+    (cellDate) => {
+      if (panelDate && isSameDay(cellDate, panelDate)) {
+        return { className: "oh-selected-day-cell" };
+      }
+      return {};
+    },
+    [panelDate]
+  );
+
   const panelEvents = useMemo(
     () =>
       panelDate
-        ? events.filter((event) =>
-            isSameDay(event.start, panelDate)
-          )
+        ? events.filter((event) => isSameDay(event.start, panelDate))
         : [],
     [events, panelDate]
   );
 
-  /* Clicking "+N more" opens the existing day panel. */
   const handleShowMore = useCallback((_events, showMoreDate) => {
     setPanelDate(showMoreDate);
   }, []);
 
-  /* Month date clicks open the same day panel.
-     Week/Day navigation keeps normal calendar behavior. */
   const handleDrillDown = useCallback(
     (drillDate, drillView) => {
       if (view === Views.MONTH) {
@@ -214,37 +182,40 @@ export default function OpenHouseCalendar() {
         </p>
       )}
 
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        view={view}
-        onView={handleViewChange}
-        date={date}
-        onNavigate={setDate}
-        eventPropGetter={eventPropGetter}
-        dayLayoutAlgorithm="overlap"
-        dayMaxEvents={2}
-        onShowMore={handleShowMore}
-        onDrillDown={handleDrillDown}
-        onSelectEvent={(event) =>
-          navigate(`/property/${event.listingId}`)
-        }
-      />
+      <div className="oh-layout">
+        <div className="oh-calendar-main">
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            view={view}
+            views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+            onView={handleViewChange}
+            date={date}
+            onNavigate={setDate}
+            eventPropGetter={eventPropGetter}
+            dayPropGetter={dayPropGetter}
+            dayLayoutAlgorithm="overlap"
+            dayMaxEvents={2}
+            onShowMore={handleShowMore}
+            onDrillDown={handleDrillDown}
+            onSelectEvent={(event) => navigate(`/property/${event.listingId}`)}
+          />
+        </div>
 
-      {panelDate && (
-        <OpenHouseDayPanel
-          date={panelDate}
-          events={panelEvents}
-          isPassed={isPassed}
-          onClose={() => setPanelDate(null)}
-          onSelectProperty={(event) => {
-            setPanelDate(null);
-            navigate(`/property/${event.listingId}`);
-          }}
-        />
-      )}
+        {panelDate && (
+          <OpenHouseDayPanel
+            date={panelDate}
+            events={panelEvents}
+            isPassed={isPassed}
+            onClose={() => setPanelDate(null)}
+            onSelectProperty={(event) => {
+              navigate(`/property/${event.listingId}`);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
