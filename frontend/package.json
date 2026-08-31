@@ -20,6 +20,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:ci": "cross-env CI=true react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -39,5 +40,16 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
+  },
+  "jest": {
+  "collectCoverageFrom": [
+    "src/components/PropertyFilters.js",
+    "src/components/Pagination.js",
+    "src/components/PropertyCard.js",
+    "src/api/client.js"
+  ]
+ }
 }

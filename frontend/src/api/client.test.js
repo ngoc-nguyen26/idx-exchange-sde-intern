@@ -24,7 +24,7 @@ test("fetchProperties returns the data it gets back from the API", async () => {
 
   const result = await fetchProperties();
 
-  expect(global.fetch).toHaveBeenCalledWith("/api/properties");
+  expect(global.fetch).toHaveBeenCalledWith("/api/properties", {});
   expect(result).toEqual(mockData);
 });
 
@@ -43,7 +43,8 @@ test("fetchProperties builds the query string and skips empty filter values", as
   });
 
   expect(global.fetch).toHaveBeenCalledWith(
-    "/api/properties?city=Naperville&minPrice=150000&beds=3"
+    "/api/properties?city=Naperville&minPrice=150000&beds=3",
+    {}
   );
 });
 
@@ -74,6 +75,9 @@ test("fetchPropertyDetail requests the correct listing by id", async () => {
 
   const result = await fetchPropertyDetail("1115119412");
 
-  expect(global.fetch).toHaveBeenCalledWith("/api/properties/1115119412");
+  expect(global.fetch).toHaveBeenCalledWith(
+    "/api/properties/1115119412",
+    {}
+  );
   expect(result).toEqual(mockProperty);
 });
