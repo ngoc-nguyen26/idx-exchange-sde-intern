@@ -3,6 +3,7 @@ import "./Pagination.css";
 export function getPageNumbers(currentPage, totalPages) {
   const MAX_WITHOUT_ELLIPSIS = 7;
 
+  // Show every page when the total is small enough to avoid unnecessary ellipses.
   if (totalPages <= MAX_WITHOUT_ELLIPSIS) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
@@ -10,26 +11,30 @@ export function getPageNumbers(currentPage, totalPages) {
   const pages = [1];
 
   if (currentPage <= 4) {
-    // Near the start: 1 2 3 4 5 ... totalPages
+    // Keep the first few pages visible when the user is near the beginning.
     for (let i = 2; i <= 5; i++) {
       pages.push(i);
     }
+
     pages.push("ellipsis-end");
     pages.push(totalPages);
   } else if (currentPage >= totalPages - 3) {
-    // the final `pages.push(totalPages)` below is the ONLY place the last
-    // page number is added, fix for the duplicate-last-page bug.
+    // Keep the last few pages visible when the user is near the end.
     pages.push("ellipsis-start");
+
     for (let i = totalPages - 4; i <= totalPages - 1; i++) {
       pages.push(i);
     }
+
     pages.push(totalPages);
   } else {
-    // Middle: 1 ... cur-1 cur cur+1 ... totalPages
+    // In the middle, show the current page with one neighbor on each side.
     pages.push("ellipsis-start");
+
     for (let i = currentPage - 1; i <= currentPage + 1; i++) {
       pages.push(i);
     }
+
     pages.push("ellipsis-end");
     pages.push(totalPages);
   }
@@ -37,7 +42,11 @@ export function getPageNumbers(currentPage, totalPages) {
   return pages;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
   if (!totalPages || totalPages <= 1) {
     return null;
   }
@@ -73,7 +82,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
               </button>
             </li>
           ) : (
-            <li key={`${page}-${index}`} className="pagination-ellipsis">
+            <li
+              key={`${page}-${index}`}
+              className="pagination-ellipsis"
+            >
               &hellip;
             </li>
           )

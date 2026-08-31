@@ -155,10 +155,23 @@
 <a name='L90'></a><a href='#L90'>90</a>
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">35x</span>
@@ -171,27 +184,35 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -240,6 +261,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -252,6 +276,7 @@
 export function getPageNumbers(currentPage, totalPages) {
   const MAX_WITHOUT_ELLIPSIS = 7;
 &nbsp;
+  // Show every page when the total is small enough to avoid unnecessary ellipses.
   if (totalPages &lt;= MAX_WITHOUT_ELLIPSIS) {
     return Array.from({ length: totalPages }, (_, i) =&gt; i + 1);
   }
@@ -259,26 +284,30 @@ export function getPageNumbers(currentPage, totalPages) {
   const pages = [1];
 &nbsp;
   <span class="missing-if-branch" title="if path not taken" >I</span>if (currentPage &lt;= 4) {
-    // Near the start: 1 2 3 4 5 ... totalPages
+    // Keep the first few pages visible when the user is near the beginning.
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >2;</span> i &lt;= 5; i++) {</span>
 <span class="cstat-no" title="statement not covered" >      pages.push(i);</span>
     }
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    pages.push("ellipsis-end");</span>
 <span class="cstat-no" title="statement not covered" >    pages.push(totalPages);</span>
   } else if (currentPage &gt;= totalPages - 3) {
-    // the final `pages.push(totalPages)` below is the ONLY place the last
-    // page number is added, fix for the duplicate-last-page bug.
+    // Keep the last few pages visible when the user is near the end.
     pages.push("ellipsis-start");
+&nbsp;
     for (let i = totalPages - 4; i &lt;= totalPages - 1; i++) {
       pages.push(i);
     }
+&nbsp;
     pages.push(totalPages);
   } else {
-    // Middle: 1 ... cur-1 cur cur+1 ... totalPages
+    // In the middle, show the current page with one neighbor on each side.
     pages.push("ellipsis-start");
+&nbsp;
     for (let i = currentPage - 1; i &lt;= currentPage + 1; i++) {
       pages.push(i);
     }
+&nbsp;
     pages.push("ellipsis-end");
     pages.push(totalPages);
   }
@@ -286,7 +315,11 @@ export function getPageNumbers(currentPage, totalPages) {
   return pages;
 }
 &nbsp;
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
   if (!totalPages || totalPages &lt;= 1) {
     return null;
   }
@@ -322,7 +355,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
               &lt;/button&gt;
             &lt;/li&gt;
           ) : (
-            &lt;li key={`${page}-${index}`} className="pagination-ellipsis"&gt;
+            &lt;li
+              key={`${page}-${index}`}
+              className="pagination-ellipsis"
+            &gt;
               &amp;hellip;
             &lt;/li&gt;
           )
@@ -346,7 +382,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T06:40:20.665Z
+                at 2026-08-31T07:34:51.335Z
             </div>
         <script src="../prettify.js"></script>
         <script>

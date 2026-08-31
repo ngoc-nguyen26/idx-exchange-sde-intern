@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:integration": "node --test server/test/properties.integration.test.js",
     "dev": "nodemon server/server.js",
     "start": "node server/server.js"
