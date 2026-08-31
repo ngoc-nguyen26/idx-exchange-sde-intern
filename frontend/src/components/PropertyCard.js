@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import PropertyImageCarousel from "./PropertyImageCarousel";
 import "./PropertyCard.css";
 
@@ -14,7 +15,14 @@ function formatPrice(price) {
   });
 }
 
-export default function PropertyCard({ property, openHouseTime, openHouseStatus, onClick }) {
+export default function PropertyCard({
+  property,
+  openHouseTime,
+  openHouseStatus,
+  onClick,
+  isFavorite,
+  onToggleFavorite,
+}) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -22,7 +30,14 @@ export default function PropertyCard({ property, openHouseTime, openHouseStatus,
       onClick();
       return;
     }
+
     navigate(`/property/${property.L_ListingID}`);
+  };
+
+  const handleFavoriteClick = (event) => {
+    // Prevent the card's own onClick (navigation) from firing.
+    event.stopPropagation();
+    onToggleFavorite(property);
   };
 
   return (
@@ -35,6 +50,17 @@ export default function PropertyCard({ property, openHouseTime, openHouseStatus,
         photos={property.L_Photos}
         alt={property.L_Address || "Property"}
       />
+
+      {onToggleFavorite && (
+        <button
+          type="button"
+          className={`favorite-button${isFavorite ? " favorite-button--active" : ""}`}
+          onClick={handleFavoriteClick}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          {isFavorite ? "♥" : "♡"}
+        </button>
+      )}
 
       {openHouseStatus && (
         <span className={`oh-card-badge oh-card-badge--${openHouseStatus}`}>
@@ -67,3 +93,54 @@ export default function PropertyCard({ property, openHouseTime, openHouseStatus,
     </article>
   );
 }
+
+PropertyCard.propTypes = {
+  property: PropTypes.shape({
+    L_ListingID: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]).isRequired,
+
+    L_Photos: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.object,
+    ]),
+
+    L_Address: PropTypes.string,
+    L_City: PropTypes.string,
+    L_State: PropTypes.string,
+
+    L_SystemPrice: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    L_Keyword2: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    LM_Dec_3: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    LM_Int2_3: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+  }).isRequired,
+
+  openHouseTime: PropTypes.string,
+
+  openHouseStatus: PropTypes.oneOf([
+    "expired",
+    "upcoming",
+  ]),
+
+  onClick: PropTypes.func,
+
+  isFavorite: PropTypes.bool,
+  onToggleFavorite: PropTypes.func,
+};

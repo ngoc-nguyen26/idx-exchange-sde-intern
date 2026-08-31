@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useOutletContext } from "react-router-dom";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
 import PropertyFilters from "../components/PropertyFilters";
@@ -9,6 +9,7 @@ import "./ListingsPage.css";
 export default function ListingsPage() {
   const [searchParams] = useSearchParams();
   const showFilters = searchParams.get("view") === "search";
+  const { isFavorite, toggleFavorite } = useOutletContext();
 
   const [data, setData] = useState({
     total: 0,
@@ -139,6 +140,8 @@ export default function ListingsPage() {
                   <PropertyCard
                     key={property.L_ListingID}
                     property={property}
+                    isFavorite={isFavorite(property.L_ListingID)}
+                    onToggleFavorite={toggleFavorite}
                   />
                 ))}
               </section>

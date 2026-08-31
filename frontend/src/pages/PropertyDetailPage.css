@@ -10,7 +10,7 @@
   align-items: center;
   gap: 6px;
   margin-bottom: 16px;
-  color: #475569;
+  color: var(--app-text-secondary, #475569);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -56,12 +56,12 @@
 /* Address */
 .detail-address {
   margin: 0 0 20px;
-  color: #868fa1;
+  color: var(--app-text-secondary, #868fa1);
   font-size: 1.05rem;
   line-height: 1.5;
 }
 
-/* Property stats - KEEPING THIS THE SAME */
+/* Property stats */
 .detail-stats {
   display: flex;
   flex-wrap: wrap;
@@ -73,9 +73,9 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #f1f5fb;
+  background: var(--app-stat-bg, #f1f5fb);
   border-radius: 999px;
-  color: #1e293b;
+  color: var(--app-text, #1e293b);
   font-size: 0.92rem;
   font-weight: 600;
 }
@@ -89,7 +89,7 @@
 .detail-card h2 {
   margin: 0 0 14px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid var(--app-card-border, #eef0f4);
   color: var(--app-text, #0f172a);
   font-size: 1.15rem;
   font-weight: 700;
@@ -98,7 +98,7 @@
 /* Description */
 .detail-description-text {
   margin: 0;
-  color: #868fa1;
+  color: var(--app-text-secondary, #868fa1);
   font-size: 0.96rem;
   line-height: 1.7;
 }
@@ -160,14 +160,13 @@
   justify-content: space-between;
   gap: 16px;
   padding: 14px 0;
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid var(--app-card-border, #eef0f4);
 }
 
 .detail-row:last-child {
   border-bottom: none;
 }
 
-/* PROPERTY DETAILS - dark theme */
 .detail-row-label {
   color: var(--app-text-secondary, #64748b);
   font-size: 0.94rem;
@@ -191,7 +190,6 @@
   height: 320px;
 }
 
-
 /* Open Houses */
 .open-houses-section {
   background: var(--app-card-bg, #fff);
@@ -209,7 +207,7 @@
   padding: 16px 0;
   background: var(--app-card-bg, #fff);
   border: none;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-card-border, #e5e7eb);
   border-radius: 0;
   box-shadow: none;
 }
@@ -227,7 +225,6 @@
   margin-bottom: 8px;
 }
 
-/* OPEN HOUSE DATE - dark theme */
 .open-house-date {
   color: var(--app-text, #0f172a);
   font-size: 17px;
@@ -253,15 +250,14 @@
   align-items: center;
   gap: 8px;
   margin: 0 0 12px;
-  color: var(--app-text-secondary, #839ec5);
+  color: var(--app-text-secondary, #475569);
   font-size: 15px;
-  font-weight: 600
 }
 
 /* Remarks */
 .open-house-remarks {
   padding-top: 10px;
-  border-top: 1px solid #eef0f4;
+  border-top: 1px solid var(--app-card-border, #eef0f4);
 }
 
 .remarks-label {
@@ -285,10 +281,10 @@
 .no-open-houses {
   margin: 0;
   padding: 16px;
-  background: #f8fafc;
+  background: var(--app-stat-bg, #f8fafc);
   border: none;
   border-radius: 8px;
-  color: #64748b;
+  color: var(--app-text-secondary, #64748b);
 }
 
 /* Loading and error states */
@@ -296,7 +292,7 @@
 .error-box {
   max-width: 600px;
   margin: 60px auto;
-  color: #475569;
+  color: var(--app-text-secondary, #475569);
   text-align: center;
 }
 
@@ -319,7 +315,6 @@
     gap: 8px;
   }
 
-  /* KEEPING 4 beds / 5.0 baths / 3677 sqft THE SAME */
   .stat-pill {
     padding: 7px 12px;
     font-size: 0.88rem;

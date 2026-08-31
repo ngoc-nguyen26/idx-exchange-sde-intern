@@ -11,13 +11,19 @@ import {
 import ListingsPage from "./pages/ListingsPage";
 import PropertyDetailPage from "./pages/PropertyDetailPage";
 import CalendarPage from "./pages/CalendarPage";
+import FavoritesPage from "./pages/FavoritesPage";
 import ErrorBoundary from "./components/ErrorBoundary";
+import useFavorites from "./hooks/useFavorites";
 import "./App.css";
 
 function AppLayout() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isSearchView = searchParams.get("view") === "search";
+
+  // Single source of truth for favorites, shared with all pages via
+  // Outlet context so the nav count and card state stay in sync.
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
   const NAV_ITEMS = [
     {
@@ -36,6 +42,11 @@ function AppLayout() {
       label: "Open House",
       to: "/calendar",
       match: () => location.pathname === "/calendar",
+    },
+    {
+      label: `Favorites (${favorites.length})`,
+      to: "/favorites",
+      match: () => location.pathname === "/favorites",
     },
   ];
   const [theme, setTheme] = useState(
@@ -113,7 +124,7 @@ function AppLayout() {
         </nav>
 
         <div className="app-main">
-          <Outlet />
+          <Outlet context={{ favorites, isFavorite, toggleFavorite }} />
         </div>
       </div>
     </div>
@@ -129,6 +140,7 @@ function App() {
             <Route path="/" element={<ListingsPage />} />
             <Route path="/property/:id" element={<PropertyDetailPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
           </Route>
         </Routes>
       </ErrorBoundary>
