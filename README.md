@@ -16,9 +16,11 @@ The app includes:
 
 ## App preview
 
-![IDX Exchange Home](frontend/public/Screenshot 1.png)
+## App Preview
 
-![IDX Exchange Open House](frontend/public/Screenshot 2.png)
+![IDX Exchange Home](frontend/public/Screenshot-1.png)
+
+![IDX Exchange Open House](frontend/public/Screenshot-2.png)
 
 ## Tech stack
 
@@ -552,4 +554,3 @@ This project is already a useful local development application, but before publi
 - add environment-specific configuration
 - sanitize and shape API responses rather than exposing raw RETS fields directly
 - add monitoring, logging, and backups for MySQL
-
