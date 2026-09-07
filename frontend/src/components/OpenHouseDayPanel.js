@@ -147,6 +147,7 @@ export default function OpenHouseDayPanel({ date, events, isPassed, onClose, onS
               openHouseTime={formatTimeRange(event)}
               openHouseStatus={isPassed(event) ? "expired" : "upcoming"}
               onClick={() => onSelectProperty(event)}
+              disableScrollZoom
             />
           ))}
         </div>

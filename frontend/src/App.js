@@ -92,7 +92,7 @@ function AppLayout() {
               <span className="theme-toggle-thumb" />
             </span>
             <span className="theme-toggle-label">
-              {theme === "dark" ? "Dark" : "Light"}
+              {theme === "dark" ? "🌙" : "🔆"}
             </span>
           </button>
 

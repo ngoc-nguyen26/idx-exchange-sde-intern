@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import PropertyImageCarousel from "./PropertyImageCarousel";
 import "./PropertyCard.css";
@@ -15,6 +16,9 @@ function formatPrice(price) {
   });
 }
 
+const MIN_SCALE = 0.94;
+const MAX_SCALE = 1.04;
+
 export default function PropertyCard({
   property,
   openHouseTime,
@@ -24,6 +28,48 @@ export default function PropertyCard({
   onToggleFavorite,
 }) {
   const navigate = useNavigate();
+  const cardRef = useRef(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    let ticking = false;
+
+    function updateScale() {
+      const node = cardRef.current;
+      ticking = false;
+
+      if (!node) return;
+
+      const rect = node.getBoundingClientRect();
+      const viewportHeight =
+        window.innerHeight || document.documentElement.clientHeight;
+
+      const cardCenter = rect.top + rect.height / 2;
+      const viewportCenter = viewportHeight / 2;
+      const maxDistance = viewportHeight / 2 + rect.height / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+      const proximity = 1 - Math.min(distance / maxDistance, 1);
+
+      const nextScale = MIN_SCALE + proximity * (MAX_SCALE - MIN_SCALE);
+      setScale(nextScale);
+    }
+
+    function onScrollOrResize() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateScale);
+      }
+    }
+
+    updateScale();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, []);
 
   const handleClick = () => {
     if (onClick) {
@@ -31,20 +77,27 @@ export default function PropertyCard({
       return;
     }
 
-    navigate(`/property/${property.L_ListingID}`);
+    const targetId = property.L_DisplayId || property.L_ListingID || property.id;
+    navigate(`/property/${targetId}`);
   };
 
   const handleFavoriteClick = (event) => {
-    // Prevent the card's own onClick (navigation) from firing.
     event.stopPropagation();
-    onToggleFavorite(property);
+    if (onToggleFavorite) {
+      onToggleFavorite(property);
+    }
   };
 
   return (
     <article
+      ref={cardRef}
       className="property-card"
       onClick={handleClick}
-      style={{ cursor: "pointer", position: "relative" }}
+      style={{
+        cursor: "pointer",
+        position: "relative",
+        transform: `scale(${scale})`,
+      }}
     >
       <PropertyImageCarousel
         photos={property.L_Photos}
@@ -54,16 +107,22 @@ export default function PropertyCard({
       {onToggleFavorite && (
         <button
           type="button"
-          className={`favorite-button${isFavorite ? " favorite-button--active" : ""}`}
+          className={`favorite-button${
+            isFavorite ? " favorite-button--active" : ""
+          }`}
           onClick={handleFavoriteClick}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          aria-label={
+            isFavorite ? "Remove from favorites" : "Add to favorites"
+          }
         >
           {isFavorite ? "♥" : "♡"}
         </button>
       )}
 
       {openHouseStatus && (
-        <span className={`oh-card-badge oh-card-badge--${openHouseStatus}`}>
+        <span
+          className={`oh-card-badge oh-card-badge--${openHouseStatus}`}
+        >
           <span className="oh-card-dot" />
           {openHouseStatus === "expired" ? "Expired" : "Upcoming"}
         </span>
@@ -96,10 +155,9 @@ export default function PropertyCard({
 
 PropertyCard.propTypes = {
   property: PropTypes.shape({
-    L_ListingID: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]).isRequired,
+    L_DisplayId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    L_ListingID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     L_Photos: PropTypes.oneOfType([
       PropTypes.string,
@@ -134,10 +192,7 @@ PropertyCard.propTypes = {
 
   openHouseTime: PropTypes.string,
 
-  openHouseStatus: PropTypes.oneOf([
-    "expired",
-    "upcoming",
-  ]),
+  openHouseStatus: PropTypes.oneOf(["expired", "upcoming"]),
 
   onClick: PropTypes.func,
 

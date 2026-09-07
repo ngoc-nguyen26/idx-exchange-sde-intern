@@ -1,0 +1,463 @@
+:root {
+  --header-navy: #172033;
+  --header-navy-light: #24324a;
+  --body-bg: #f8fafc;
+  --field-border: #cbd5e1;
+  --field-border-hover: #94a3b8;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --danger-clear: #475569;
+}
+
+/* Sort Controls */
+.sort-controls {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+/* Main Sort Button */
+.sort-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  background: #ffffff;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1.5px solid var(--field-border);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.sort-header:hover {
+  border-color: var(--accent);
+  background: var(--body-bg);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.sort-header:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+/* Sort Panel */
+.sort-menu {
+  position: relative;
+  z-index: 1;
+  width: 310px;
+  margin-top: 10px;
+  padding: 18px;
+  background: var(--body-bg);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.08),
+    0 8px 24px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+  max-height: 700px;
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  overflow: hidden;
+  pointer-events: auto;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.2s ease,
+    transform 0.3s ease,
+    margin-top 0.3s ease,
+    padding 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Closed State */
+.sort-menu.collapsed {
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+  border-color: transparent;
+}
+
+/* Sort Fields */
+.sort-fields {
+  width: 100%;
+}
+
+.sort-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.sort-field:last-child {
+  margin-bottom: 0;
+}
+
+.sort-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Priority badge shown next to a field's label once it's part of the
+   active multi-key sort (1 = highest priority). */
+.sort-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Row pairing a field's select with its per-field clear (×) button. */
+.sort-select-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sort-select-row .sort-select-wrapper {
+  flex: 1;
+}
+
+.sort-field-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--field-border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.sort-field-clear:hover {
+  border-color: var(--danger-clear);
+  color: var(--text);
+  background: var(--body-bg);
+}
+
+/* Select-like Fields */
+.sort-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.sort-select {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid var(--field-border);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.sort-select:hover {
+  border-color: var(--accent);
+  background: var(--body-bg);
+}
+
+.sort-select:focus-visible,
+.sort-select.focused {
+  border-color: var(--accent);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+/* Dropdown Options */
+.sort-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 70;
+  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--field-border);
+  border-radius: 5px;
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.08),
+    0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.sort-dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 0;
+  background: #ffffff;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s ease;
+}
+
+.sort-dropdown-option:hover {
+  background: var(--body-bg);
+}
+
+.sort-dropdown-option.active {
+  background: #eff6ff;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.sort-check {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Sort Actions */
+.sort-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 4px;
+  padding-top: 14px;
+}
+
+.sort-clear,
+.sort-apply {
+  height: 40px;
+  padding: 0 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+/* Apply Button */
+.sort-apply {
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-light)
+  );
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.sort-apply:hover {
+  background: linear-gradient(
+    135deg,
+    #1d4ed8,
+    #2563eb
+  );
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Clear Button */
+.sort-clear {
+  background: #ffffff;
+  color: var(--danger-clear);
+  border: 1.5px solid var(--field-border);
+}
+
+.sort-clear:hover {
+  color: #1e293b;
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  box-shadow: 0 2px 6px rgba(142, 165, 220, 0.08);
+  transform: translateY(-1px);
+}
+
+.sort-clear:active,
+.sort-apply:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Dark Theme */
+[data-theme="dark"] .sort-header {
+  background: var(--header-navy);
+  color: #60a5fa;
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-header:hover {
+  background: var(--header-navy-light);
+  border-color: #60a5fa;
+}
+
+[data-theme="dark"] .sort-menu {
+  background: var(--header-navy);
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-field label {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .sort-select {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-select:hover {
+  background: #24324a;
+  border-color: #60a5fa;
+}
+
+[data-theme="dark"] .sort-select.focused,
+[data-theme="dark"] .sort-select:focus-visible {
+  border-color: #60a5fa;
+  background: #1f2937;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+}
+
+[data-theme="dark"] .sort-dropdown {
+  background: #1f2937;
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-dropdown-option {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .sort-dropdown-option:hover {
+  background: #24324a;
+}
+
+[data-theme="dark"] .sort-dropdown-option.active {
+  background: #24324a;
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .sort-check {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .sort-actions {
+  border-top-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-clear {
+  background: #1f2937;
+  color: #9ca3af;
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-clear:hover {
+  color: #e5e7eb;
+  border-color: #60a5fa;
+  background: #24324a;
+}
+
+[data-theme="dark"] .sort-apply {
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #60a5fa
+  );
+  box-shadow: 0 2px 6px rgba(96, 165, 250, 0.25);
+}
+
+[data-theme="dark"] .sort-apply:hover {
+  background: linear-gradient(
+    135deg,
+    #1d4ed8,
+    #3b82f6
+  );
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.35);
+}
+
+[data-theme="dark"] .sort-field-clear {
+  background: #1f2937;
+  color: #9ca3af;
+  border-color: #3a424f;
+}
+
+[data-theme="dark"] .sort-field-clear:hover {
+  border-color: #60a5fa;
+  color: #e5e7eb;
+  background: #24324a;
+}
+
+[data-theme="dark"] .sort-priority-badge {
+  background: #60a5fa;
+  color: #0b1220;
+}

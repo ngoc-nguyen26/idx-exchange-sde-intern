@@ -8,11 +8,11 @@ body {
   border-radius: 14px;
   background: var(--app-card-bg, white);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.35s ease-out, box-shadow 0.18s ease;
+  will-change: transform;
 }
 
 .property-card:hover {
-  transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -103,4 +103,5 @@ body {
 
 .favorite-button--active {
   color: #ff4d6d;
+  background: #fef2f2;
 }

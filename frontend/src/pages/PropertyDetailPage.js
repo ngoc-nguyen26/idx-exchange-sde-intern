@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useOutletContext } from "react-router-dom";
 import {
   fetchPropertyDetail,
   fetchPropertyOpenHouses,
@@ -250,6 +250,7 @@ const ClockIcon = () => (
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
+  const { isFavorite, toggleFavorite } = useOutletContext();
 
   const [property, setProperty] = useState(null);
   const [openHouses, setOpenHouses] = useState([]);
@@ -316,6 +317,7 @@ export default function PropertyDetailPage() {
     property.LMD_MP_Longitude !== undefined;
 
   const detailRows = buildPropertyDetailRows(property);
+  const favorited = isFavorite(property.L_ListingID);
 
   return (
     <main className="property-detail">
@@ -331,6 +333,17 @@ export default function PropertyDetailPage() {
       </div>
 
       <section className="detail-summary-card">
+        <button
+          type="button"
+          className={`favorite-button${favorited ? " is-favorite" : ""}`}
+          onClick={() => toggleFavorite(property)}
+          aria-label={
+            favorited ? "Remove from favorites" : "Add to favorites"
+          }
+        >
+          {favorited ? "♥" : "♡"}
+        </button>
+
         <h1 className="detail-price">
           {formatPrice(property.L_SystemPrice)}
         </h1>

@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams, useOutletContext } from "react-router-dom";
+import { Link, useSearchParams, useOutletContext } from "react-router-dom";
 import { fetchProperties } from "../api/client";
 import PropertyCard from "../components/PropertyCard";
 import PropertyFilters from "../components/PropertyFilters";
+import SortControls from "../components/SortControls";
 import Pagination from "../components/Pagination";
 import "./ListingsPage.css";
+
+
+const TYPING_TEXT = "Not what you\u2019re looking for? Start your ";
+const TYPING_SPEED_MS = 65;
 
 export default function ListingsPage() {
   const [searchParams] = useSearchParams();
@@ -21,17 +26,28 @@ export default function ListingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // The filters currently applied to the results. Kept separate from
-  // whatever is typed in the form so that changing pages can re-fetch
-  // with the SAME filters still applied.
   const [activeFilters, setActiveFilters] = useState({});
+
+  const [sortCriteria, setSortCriteria] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
   const latestRequestId = useRef(0);
   const isFirstRender = useRef(true);
 
-  async function loadProperties(filters = {}, page = 1) {
+  // Typing effect state for the home page banner.
+  const [typedText, setTypedText] = useState("");
+  const [isTypingDone, setIsTypingDone] = useState(false);
+
+  function primarySort(criteria) {
+    const first = criteria && criteria[0];
+    return {
+      sortBy: first ? first.sortBy : "",
+      sortOrder: first ? first.sortOrder : "",
+    };
+  }
+
+  async function loadProperties(filters = {}, page = 1, sort = {}) {
     const requestId = ++latestRequestId.current;
     const offset = (page - 1) * itemsPerPage;
 
@@ -43,6 +59,7 @@ export default function ListingsPage() {
         limit: itemsPerPage,
         offset,
         ...filters,
+        ...sort,
       });
 
       if (requestId !== latestRequestId.current) {
@@ -71,33 +88,64 @@ export default function ListingsPage() {
 
     if (!showFilters) {
       setActiveFilters({});
+      setSortCriteria([]);
       setCurrentPage(1);
       loadProperties({}, 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFilters]);
 
-  // Requirement 35: changing filters must reset to page 1.
+  // Drive the typing effect only on the home page (not the search page,
+  // which already shows the filter panel instead of this banner).
+  useEffect(() => {
+    if (showFilters) {
+      return;
+    }
+
+    setTypedText("");
+    setIsTypingDone(false);
+
+    let charIndex = 0;
+    const intervalId = setInterval(() => {
+      charIndex += 1;
+      setTypedText(TYPING_TEXT.slice(0, charIndex));
+
+      if (charIndex >= TYPING_TEXT.length) {
+        clearInterval(intervalId);
+        setIsTypingDone(true);
+      }
+    }, TYPING_SPEED_MS);
+
+    return () => clearInterval(intervalId);
+  }, [showFilters]);
+
+
   function handleSearch(filters) {
     setActiveFilters(filters);
+    setSortCriteria([]);
     setCurrentPage(1);
     loadProperties(filters, 1);
   }
 
   function handleClear() {
     setActiveFilters({});
+    setSortCriteria([]);
     setCurrentPage(1);
     loadProperties({}, 1);
   }
 
-  // Requirement 34: changing pages must scroll to top and preserve
-  // the active filters (activeFilters is passed straight through).
+  function handleSortChange(newSortCriteria) {
+    setSortCriteria(newSortCriteria);
+    setCurrentPage(1);
+    loadProperties(activeFilters, 1, primarySort(newSortCriteria));
+  }
+
   function handlePageChange(page) {
     if (page < 1 || page > totalPages || page === currentPage) {
       return;
     }
     setCurrentPage(page);
-    loadProperties(activeFilters, page);
+    loadProperties(activeFilters, page, primarySort(sortCriteria));
     window.scrollTo(0, 0);
   }
 
@@ -108,7 +156,30 @@ export default function ListingsPage() {
   return (
     <main className="listings-page">
       {showFilters && (
-        <PropertyFilters onSearch={handleSearch} onClear={handleClear} />
+        <div className="listings-controls">
+          <PropertyFilters onSearch={handleSearch} onClear={handleClear} />
+          <SortControls
+            sortCriteria={sortCriteria}
+            onSortChange={handleSortChange}
+          />
+        </div>
+      )}
+
+      {!showFilters && (
+        <p className="home-typing-banner">
+          {typedText.split("\n").map((line, index) => (
+            <span key={index}>
+              {index > 0 && <br />}
+              {line}
+            </span>
+          ))}
+          {isTypingDone && (
+            <Link to="/?view=search" className="home-typing-link">
+              Property Search
+            </Link>
+          )}
+          {!isTypingDone && <span className="home-typing-cursor" aria-hidden="true" />}
+        </p>
       )}
 
       {loading && <p className="status-message">Loading properties...</p>}
@@ -116,7 +187,7 @@ export default function ListingsPage() {
       {!loading && error && (
         <div className="error-box">
           <p>{error}</p>
-          <button onClick={() => loadProperties(activeFilters, currentPage)}>
+          <button onClick={() => loadProperties(activeFilters, currentPage, primarySort(sortCriteria))}>
             Try again
           </button>
         </div>
@@ -124,9 +195,11 @@ export default function ListingsPage() {
 
       {!loading && !error && (
         <>
-          <p className="property-count">
-            Showing {rangeStart}-{rangeEnd} of {data.total} properties
-          </p>
+          {showFilters && (
+            <p className="property-count">
+              Showing {rangeStart}-{rangeEnd} of {data.total} properties
+            </p>
+          )}
 
           {data.results.length === 0 ? (
             <p className="status-message">

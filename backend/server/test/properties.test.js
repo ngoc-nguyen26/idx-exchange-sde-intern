@@ -122,6 +122,90 @@ describe("GET /api/properties", () => {
     expect(res.status).toBe(500);
     expect(res.body.error).toBe("Internal server error");
   });
+
+  test("sorts by price ascending", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    const res = await request(app).get("/api/properties?sortBy=price&sortOrder=asc");
+
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY L_SystemPrice ASC");
+  });
+
+  test("sorts by price descending", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    const res = await request(app).get("/api/properties?sortBy=price&sortOrder=desc");
+
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY L_SystemPrice DESC");
+  });
+
+  test("sorts by date listed", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    const res = await request(app).get("/api/properties?sortBy=dateListed&sortOrder=desc");
+
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY ListingContractDate DESC");
+  });
+
+  test("sorts by square footage", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    const res = await request(app).get("/api/properties?sortBy=sqft&sortOrder=asc");
+
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY LM_Int2_3 ASC");
+  });
+
+  test("sorts by baths", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+    
+    const res = await request(app).get("/api/properties?sortBy=baths&sortOrder=desc");
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY LM_Dec_3 DESC");
+  });
+
+  test("defaults sortOrder to asc when omitted", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    const res = await request(app).get("/api/properties?sortBy=beds");
+
+    expect(res.status).toBe(200);
+    expect(pool.query.mock.calls[1][0]).toContain("ORDER BY L_Keyword2 ASC");
+  });
+
+  test("omits ORDER BY when sortBy is not given", async () => {
+    pool.query.mockResolvedValueOnce([[{ total: 0 }]]).mockResolvedValueOnce([[]]);
+
+    await request(app).get("/api/properties");
+
+    expect(pool.query.mock.calls[1][0]).not.toContain("ORDER BY");
+  });
+
+  test("rejects an invalid sortBy", async () => {
+    const res = await request(app).get("/api/properties?sortBy=notAColumn");
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/Invalid sortBy/);
+    expect(pool.query).not.toHaveBeenCalled();
+  });
+
+  test("rejects an invalid sortOrder", async () => {
+    const res = await request(app).get("/api/properties?sortBy=price&sortOrder=sideways");
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/Invalid sortOrder/);
+    expect(pool.query).not.toHaveBeenCalled();
+  });
+
+  test("rejects an attempted raw column name as sortBy", async () => {
+    const res = await request(app).get("/api/properties?sortBy=L_SystemPrice");
+
+    expect(res.status).toBe(400);
+    expect(pool.query).not.toHaveBeenCalled();
+  });
 });
 
 describe("GET /api/properties/:id", () => {

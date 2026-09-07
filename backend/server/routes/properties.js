@@ -8,6 +8,16 @@ const DEFAULT_LIMIT = 20;
 
 const MAX_LIMIT = 100;
 
+const SORT_COLUMNS = {
+  price: "L_SystemPrice",
+  dateListed: "ListingContractDate",
+  sqft: "LM_Int2_3",
+  beds: "L_Keyword2",
+  baths: "LM_Dec_3",
+};
+
+const SORT_ORDERS = ["asc", "desc"];
+
 function parsePositiveInt(value, name, { min = 0, max = Infinity } = {}) {
   if (value === undefined || value === "") {
     return undefined;
@@ -42,6 +52,32 @@ function parseNonEmptyString(value, name) {
   return trimmed;
 }
 
+function parseSort(query) {
+  if (query.sortBy === undefined) {
+    return undefined;
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(SORT_COLUMNS, query.sortBy)) {
+    const err = new Error(
+      `Invalid sortBy: must be one of ${Object.keys(SORT_COLUMNS).join(", ")}`
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const order = String(query.sortOrder || "asc").toLowerCase();
+
+  if (!SORT_ORDERS.includes(order)) {
+    const err = new Error(
+      `Invalid sortOrder: must be one of ${SORT_ORDERS.join(", ")}`
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  return { column: SORT_COLUMNS[query.sortBy], order: order.toUpperCase() };
+}
+
 function buildFilters(query) {
   const conditions = [];
   const values = [];
@@ -74,14 +110,15 @@ function buildFilters(query) {
     values.push(maxPrice);
   }
 
-  // Use >= so minimum bed/bath filters also include properties with more rooms.
+  // Beds/baths of 1-4 must match exactly; a selected value of 5 means
+  // "5 or more" ("5+" in the UI), so only that case uses >=.
   if (beds !== undefined) {
-    conditions.push("L_Keyword2 >= ?");
+    conditions.push(beds >= 5 ? "L_Keyword2 >= ?" : "L_Keyword2 = ?");
     values.push(beds);
   }
 
   if (baths !== undefined) {
-    conditions.push("LM_Dec_3 >= ?");
+    conditions.push(baths >= 5 ? "LM_Dec_3 >= ?" : "LM_Dec_3 = ?");
     values.push(baths);
   }
 
@@ -125,9 +162,14 @@ router.get("/", async (req, res) => {
     });
 
     const { conditions, values } = buildFilters(req.query);
+    const sort = parseSort(req.query);
 
     const whereClause =
       conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    // column/order are only ever taken from SORT_COLUMNS/SORT_ORDERS, never
+    // from the raw request value, so this string is safe to interpolate.
+    const orderClause = sort ? `ORDER BY ${sort.column} ${sort.order}` : "";
 
     const countSql = `
       SELECT COUNT(*) AS total
@@ -139,6 +181,7 @@ router.get("/", async (req, res) => {
       SELECT *
       FROM rets_property
       ${whereClause}
+      ${orderClause}
       LIMIT ? OFFSET ?
     `;
 
